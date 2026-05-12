@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as QuickLearnRouteImport } from './routes/quick-learn'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
@@ -28,6 +30,11 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuickLearnRoute = QuickLearnRouteImport.update({
+  id: '/quick-learn',
+  path: '/quick-learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -36,6 +43,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,8 +73,10 @@ const ProfileUsernameRoute = ProfileUsernameRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/quick-learn': typeof QuickLearnRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/profile/$username': typeof ProfileUsernameRoute
@@ -71,8 +85,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/quick-learn': typeof QuickLearnRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/profile/$username': typeof ProfileUsernameRoute
@@ -82,8 +98,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
+  '/quick-learn': typeof QuickLearnRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/profile/$username': typeof ProfileUsernameRoute
@@ -94,8 +112,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/login'
     | '/notifications'
+    | '/quick-learn'
     | '/search'
     | '/signup'
     | '/profile/$username'
@@ -104,8 +124,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/login'
     | '/notifications'
+    | '/quick-learn'
     | '/search'
     | '/signup'
     | '/profile/$username'
@@ -114,8 +136,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/login'
     | '/notifications'
+    | '/quick-learn'
     | '/search'
     | '/signup'
     | '/profile/$username'
@@ -125,8 +149,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
+  QuickLearnRoute: typeof QuickLearnRoute
   SearchRoute: typeof SearchRoute
   SignupRoute: typeof SignupRoute
   ProfileUsernameRoute: typeof ProfileUsernameRoute
@@ -150,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quick-learn': {
+      id: '/quick-learn'
+      path: '/quick-learn'
+      fullPath: '/quick-learn'
+      preLoaderRoute: typeof QuickLearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notifications': {
       id: '/notifications'
       path: '/notifications'
@@ -162,6 +195,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,8 +237,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
+  QuickLearnRoute: QuickLearnRoute,
   SearchRoute: SearchRoute,
   SignupRoute: SignupRoute,
   ProfileUsernameRoute: ProfileUsernameRoute,
