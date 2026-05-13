@@ -77,7 +77,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavIcon to="/notifications" icon={<Bell className="h-5 w-5" />} active={isActive("/notifications")} badge={unread} />
           <NavIcon
             to={profile ? `/profile/${profile.username}` : "/login"}
-            icon={<User className="h-5 w-5" />}
+            icon={profile?.avatar_url
+              ? <img src={profile.avatar_url} className="h-7 w-7 rounded-full object-cover" />
+              : <User className="h-5 w-5" />}
             active={isActive("/profile")}
           />
         </div>
