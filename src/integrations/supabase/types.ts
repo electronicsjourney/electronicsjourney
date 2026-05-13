@@ -187,13 +187,23 @@ export type Database = {
       }
       projects: {
         Row: {
+          build_cost: string | null
+          build_time: string | null
+          category: string | null
           code: string | null
+          components: Json
           content: string | null
+          content_blocks: Json
           cover_image: string | null
           created_at: string
           description: string | null
+          difficulty: string | null
           featured: boolean
           id: string
+          published_at: string | null
+          status: string
+          steps: Json
+          tagline: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -201,13 +211,23 @@ export type Database = {
           views: number
         }
         Insert: {
+          build_cost?: string | null
+          build_time?: string | null
+          category?: string | null
           code?: string | null
+          components?: Json
           content?: string | null
+          content_blocks?: Json
           cover_image?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
           featured?: boolean
           id?: string
+          published_at?: string | null
+          status?: string
+          steps?: Json
+          tagline?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -215,13 +235,23 @@ export type Database = {
           views?: number
         }
         Update: {
+          build_cost?: string | null
+          build_time?: string | null
+          category?: string | null
           code?: string | null
+          components?: Json
           content?: string | null
+          content_blocks?: Json
           cover_image?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
           featured?: boolean
           id?: string
+          published_at?: string | null
+          status?: string
+          steps?: Json
+          tagline?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
