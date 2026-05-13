@@ -562,7 +562,7 @@ function BlockEditor({ block, index, total, onChange, onRemove, onMove, uploadIm
         tip: { ring: "border-l-4 border-green-500/60", icon: Lightbulb, label: "Tip" },
         warning: { ring: "border-l-4 border-yellow-500/60", icon: AlertTriangle, label: "Warning" },
         info: { ring: "border-l-4 border-blue-500/60", icon: Info, label: "Info" },
-      }[block.type];
+      }[block.type as "tip" | "warning" | "info"];
       const Icon = styles.icon;
       return (
         <div className={`${wrap} ${styles.ring}`}>{handle}{del}
