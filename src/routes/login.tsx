@@ -24,11 +24,10 @@ function Login() {
   };
 
   const google = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) toast.error(error.message);
+    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    if (result.redirected) return;
+    if (result.error) return toast.error(result.error.message);
+    nav({ to: "/" });
   };
 
   return (
