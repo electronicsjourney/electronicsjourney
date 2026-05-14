@@ -8,6 +8,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, profile, isAdmin, signOut } = useAuth();
   const loc = useLocation();
   const [unread, setUnread] = useState(0);
+  const [confirmOut, setConfirmOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -54,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             {user ? (
-              <button onClick={signOut} className="p-2 hover:text-destructive transition" title="Sign out">
+              <button onClick={() => setConfirmOut(true)} className="p-2 hover:text-destructive transition" title="Sign out">
                 <LogOut className="h-5 w-5" />
               </button>
             ) : (
@@ -84,6 +86,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           />
         </div>
       </nav>
+
+      {confirmOut && (
+        <div
+          className="fixed inset-0 z-[100] grid place-items-center px-4 animate-in fade-in duration-200"
+          onClick={() => !signingOut && setConfirmOut(false)}
+        >
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-xl" />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-sm glass-strong rounded-3xl p-7 glow-soft border border-white/10 animate-in zoom-in-95 duration-200"
+          >
+            <div className="mx-auto h-14 w-14 rounded-2xl gradient-bg grid place-items-center glow-soft mb-4">
+              <Zap className="h-7 w-7 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-center gradient-text">Leaving so soon?</h3>
+            <p className="text-sm text-center text-muted-foreground mt-2 leading-relaxed">
+              We'll miss your creativity ⚡<br />
+              Come back soon to keep building amazing projects.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                disabled={signingOut}
+                onClick={() => setConfirmOut(false)}
+                className="glass rounded-xl py-3 text-sm font-medium hover:bg-white/5 transition disabled:opacity-50"
+              >
+                Stay Here
+              </button>
+              <button
+                disabled={signingOut}
+                onClick={async () => {
+                  setSigningOut(true);
+                  await signOut();
+                  setSigningOut(false);
+                  setConfirmOut(false);
+                }}
+                className="rounded-xl py-3 text-sm font-medium bg-destructive/90 hover:bg-destructive text-white transition disabled:opacity-60"
+              >
+                {signingOut ? "Signing out…" : "Logout"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
