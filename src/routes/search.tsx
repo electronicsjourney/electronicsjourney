@@ -16,8 +16,11 @@ function SearchPage() {
     if (!q.trim()) { setProjects([]); setUsers([]); setPosts([]); return; }
     const t = setTimeout(async () => {
       const term = `%${q.trim()}%`;
+      const raw = q.trim().replace(/^#/, "");
       const [{ data: p }, { data: u }, { data: l }] = await Promise.all([
-        supabase.from("projects").select("id,title,description,cover_image").or(`title.ilike.${term},description.ilike.${term}`).limit(10),
+        supabase.from("projects").select("id,title,description,cover_image,tags")
+          .eq("status", "published")
+          .or(`title.ilike.${term},description.ilike.${term},tagline.ilike.${term},category.ilike.${term},tags.cs.{${raw}}`).limit(20),
         supabase.from("profiles").select("id,username,display_name,avatar_url").or(`username.ilike.${term},display_name.ilike.${term}`).limit(10),
         supabase.from("quick_learn").select("id,title,body,category").or(`title.ilike.${term},body.ilike.${term}`).limit(10),
       ]);
@@ -48,6 +51,11 @@ function SearchPage() {
               <Link key={p.id} to="/projects/$id" params={{ id: p.id }} className="glass rounded-xl p-3 hover:glow-soft block">
                 <div className="font-medium">{p.title}</div>
                 {p.description && <div className="text-sm text-muted-foreground line-clamp-1">{p.description}</div>}
+                {p.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {p.tags.slice(0, 4).map((t: string) => <span key={t} className="text-[10px] text-primary">#{t}</span>)}
+                  </div>
+                )}
               </Link>
             ))}
           </Section>

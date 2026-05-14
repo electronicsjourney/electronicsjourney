@@ -19,7 +19,16 @@ export function ProjectCard({ project }: { project: any }) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="font-semibold line-clamp-1 group-hover:gradient-text transition">{project.title}</h3>
-        {project.description && <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>}
+        {(project.tagline || project.description) && (
+          <p className="text-sm text-muted-foreground line-clamp-2">{project.tagline || project.description}</p>
+        )}
+        {project.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {project.tags.slice(0, 3).map((t: string) => (
+              <span key={t} className="text-[10px] glass rounded-full px-2 py-0.5 text-primary">#{t}</span>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
           <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {project.likes_count ?? 0}</span>
           <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" /> {project.comments_count ?? 0}</span>
