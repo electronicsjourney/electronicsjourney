@@ -19,9 +19,13 @@ function QuickLearn() {
   const load = async () => {
     const { data } = await supabase
       .from("quick_learn")
-      .select("*, profiles!quick_learn_author_id_fkey(username)")
+      .select("*")
       .order("created_at", { ascending: false }).limit(50);
-    setPosts(data ?? []);
+    const withProfiles = await Promise.all((data ?? []).map(async (p: any) => {
+      const { data: pr } = await supabase.from("profiles").select("username, avatar_url").eq("id", p.author_id).maybeSingle();
+      return { ...p, profiles: pr };
+    }));
+    setPosts(withProfiles);
   };
   useEffect(() => { load(); }, []);
 
