@@ -23,10 +23,18 @@ function ProjectPage() {
   const [comment, setComment] = useState("");
 
   const load = async () => {
-    const { data: p } = await supabase
+    const { data: p, error: pErr } = await supabase
       .from("projects")
-      .select("*, profiles!projects_user_id_fkey(username, avatar_url, display_name)")
+      .select("*")
       .eq("id", id).maybeSingle();
+    if (pErr) console.error("project fetch", pErr);
+    if (p) {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("username, avatar_url, display_name")
+        .eq("id", p.user_id).maybeSingle();
+      (p as any).profiles = prof;
+    }
     setProject(p);
     if (p) {
       await supabase.from("projects").update({ views: (p.views ?? 0) + 1 }).eq("id", id);
