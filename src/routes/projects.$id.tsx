@@ -48,9 +48,13 @@ function ProjectPage() {
       }
       const { data: c } = await supabase
         .from("project_comments")
-        .select("*, profiles!project_comments_user_id_fkey(username, avatar_url)")
+        .select("*")
         .eq("project_id", id).order("created_at", { ascending: true });
-      setComments(c ?? []);
+      const withProfiles = await Promise.all((c ?? []).map(async (cm: any) => {
+        const { data: pr } = await supabase.from("profiles").select("username, avatar_url").eq("id", cm.user_id).maybeSingle();
+        return { ...cm, profiles: pr };
+      }));
+      setComments(withProfiles);
     }
     setLoading(false);
   };
