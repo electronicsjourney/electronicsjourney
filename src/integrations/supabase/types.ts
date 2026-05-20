@@ -271,6 +271,7 @@ export type Database = {
           published_at: string
           source: string | null
           subtitle: string | null
+          tags: string[]
           title: string
         }
         Insert: {
@@ -283,6 +284,7 @@ export type Database = {
           published_at?: string
           source?: string | null
           subtitle?: string | null
+          tags?: string[]
           title: string
         }
         Update: {
@@ -295,6 +297,7 @@ export type Database = {
           published_at?: string
           source?: string | null
           subtitle?: string | null
+          tags?: string[]
           title?: string
         }
         Relationships: []
