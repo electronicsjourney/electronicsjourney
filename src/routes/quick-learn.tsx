@@ -524,7 +524,7 @@ function EmptyHint({ onCreate }: { onCreate: () => void }) {
 
 /* ====================== COMMENTS ====================== */
 
-type Comment = { id: string; body: string; user_id: string; created_at: string; author?: Profile | null };
+type Comment = { id: string; content: string; user_id: string; created_at: string; author?: Profile | null };
 
 function CommentsPanel({ post, userId, onClose }: { post: Post; userId?: string; onClose: () => void }) {
   const [items, setItems] = useState<Comment[]>([]);
@@ -532,37 +532,81 @@ function CommentsPanel({ post, userId, onClose }: { post: Post; userId?: string;
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
+  const hydrateAuthors = useCallback(async (list: Comment[]) => {
+    const ids = Array.from(new Set(list.map((c) => c.user_id)));
+    if (!ids.length) return list;
+    const { data: pp } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url")
+      .in("id", ids);
+    const map = new Map<string, Profile>();
+    (pp ?? []).forEach((p: any) => map.set(p.id, p));
+    return list.map((c) => ({ ...c, author: map.get(c.user_id) ?? null }));
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("project_comments") // reuse table — repurpose project_id for post id (kept simple)
+    const { data, error } = await supabase
+      .from("quick_learn_comments" as any)
       .select("*")
-      .eq("project_id", post.id)
+      .eq("post_id", post.id)
       .order("created_at", { ascending: true });
-    const list = (data ?? []) as any as Comment[];
-    const ids = Array.from(new Set(list.map((c) => c.user_id)));
-    if (ids.length) {
-      const { data: pp } = await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", ids);
-      const map = new Map<string, Profile>();
-      (pp ?? []).forEach((p: any) => map.set(p.id, p));
-      list.forEach((c) => (c.author = map.get(c.user_id) ?? null));
+    if (error) {
+      toast.error("Couldn't load comments");
+      setLoading(false);
+      return;
     }
+    const list = await hydrateAuthors((data ?? []) as any as Comment[]);
     setItems(list);
     setLoading(false);
-  }, [post.id]);
+  }, [post.id, hydrateAuthors]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Realtime updates
+  useEffect(() => {
+    const ch = supabase
+      .channel(`ql-comments-${post.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "quick_learn_comments", filter: `post_id=eq.${post.id}` },
+        async (payload) => {
+          const c = payload.new as any as Comment;
+          setItems((prev) => (prev.some((x) => x.id === c.id) ? prev : [...prev, c]));
+          const [withAuthor] = await hydrateAuthors([c]);
+          setItems((prev) => prev.map((x) => (x.id === c.id ? withAuthor : x)));
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [post.id, hydrateAuthors]);
 
   const send = async () => {
     if (!userId) return toast.error("Sign in to comment");
     const body = text.trim();
     if (!body) return;
-    setSending(true);
-    const { error } = await supabase.from("project_comments").insert({ project_id: post.id, user_id: userId, content: body } as any);
-    setSending(false);
-    if (error) return toast.error(error.message);
+
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Comment = {
+      id: tempId, content: body, user_id: userId, created_at: new Date().toISOString(),
+    };
+    const [withAuthor] = await hydrateAuthors([optimistic]);
+    setItems((prev) => [...prev, withAuthor]);
     setText("");
-    load();
+    setSending(true);
+
+    const { data, error } = await supabase
+      .from("quick_learn_comments" as any)
+      .insert({ post_id: post.id, user_id: userId, content: body })
+      .select()
+      .single();
+    setSending(false);
+    if (error) {
+      setItems((prev) => prev.filter((c) => c.id !== tempId));
+      setText(body);
+      return toast.error(error.message || "Failed to post comment");
+    }
+    setItems((prev) => prev.map((c) => (c.id === tempId ? { ...withAuthor, ...(data as any) } : c)));
   };
 
   return (
@@ -597,7 +641,7 @@ function CommentsPanel({ post, userId, onClose }: { post: Post; userId?: string;
               )}
               <div className="flex-1 min-w-0">
                 <div className="text-sm"><span className="font-semibold">{c.author?.display_name || c.author?.username || "User"}</span> <span className="text-white/40 text-xs">· {timeAgo(c.created_at)}</span></div>
-                <div className="text-sm text-white/85 whitespace-pre-wrap break-words">{c.body || (c as any).content}</div>
+                <div className="text-sm text-white/85 whitespace-pre-wrap break-words">{c.content}</div>
               </div>
             </div>
           ))}
