@@ -396,13 +396,13 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
   return (
     <article className="relative w-full max-w-2xl h-full max-h-[calc(100dvh-7rem)] md:max-h-[calc(100dvh-8rem)] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.01] backdrop-blur-xl shadow-[0_30px_120px_-30px_rgba(99,102,241,0.5)] flex flex-col">
       {/* Image */}
-      <div className="relative w-full aspect-[16/10] shrink-0 overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/40">
+      <div className="relative w-full shrink-0 overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/40 h-[32vh] min-h-[180px] max-h-[300px] sm:h-[34vh] sm:max-h-[340px] md:h-[38vh] md:max-h-[380px] lg:h-[40vh] lg:max-h-[420px]">
         {post.image_url ? (
           <img src={post.image_url} alt={post.title} loading="lazy" className="h-full w-full object-cover" draggable={false} />
         ) : (
           <div className="h-full w-full grid place-items-center"><Sparkles className="h-14 w-14 text-white/20" /></div>
         )}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
         <span className="absolute top-3 left-3 rounded-full bg-cyan-400/20 backdrop-blur-md border border-cyan-300/30 text-cyan-200 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
           {post.category}
         </span>
