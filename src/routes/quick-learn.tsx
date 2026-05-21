@@ -641,7 +641,7 @@ function CommentsPanel({ post, userId, onClose }: { post: Post; userId?: string;
               )}
               <div className="flex-1 min-w-0">
                 <div className="text-sm"><span className="font-semibold">{c.author?.display_name || c.author?.username || "User"}</span> <span className="text-white/40 text-xs">· {timeAgo(c.created_at)}</span></div>
-                <div className="text-sm text-white/85 whitespace-pre-wrap break-words">{c.body || (c as any).content}</div>
+                <div className="text-sm text-white/85 whitespace-pre-wrap break-words">{c.content}</div>
               </div>
             </div>
           ))}
