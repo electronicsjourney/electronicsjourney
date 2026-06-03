@@ -3,7 +3,6 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
-import { Zap } from "lucide-react";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -35,8 +34,8 @@ function Login() {
   return (
     <div className="min-h-screen grid place-items-center px-4">
       <div className="w-full max-w-md glass-strong rounded-3xl p-8 glow-soft">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="h-10 w-10 rounded-xl gradient-bg grid place-items-center"><Zap className="h-5 w-5 text-white" /></div>
+        <div className="flex items-center gap-3 mb-6">
+          <img src="/logo.PNG" alt="Electronics Journey" className="h-12 w-12 rounded-full object-cover" />
           <div>
             <div className="font-bold text-lg gradient-text">Electronics Journey</div>
             <div className="text-xs text-muted-foreground">Welcome back</div>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Compass, PlusSquare, Bell, User, Search, Zap, Shield, LogOut } from "lucide-react";
+import { Hop as Home, Compass, SquarePlus as PlusSquare, Bell, User, Search, Shield, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,9 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 glass-strong border-b">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg gradient-bg grid place-items-center glow-soft">
-              <Zap className="h-4 w-4 text-white" />
-            </div>
+            <img src="/logo.PNG" alt="Electronics Journey" className="h-9 w-9 rounded-full object-cover" />
             <span className="font-bold text-lg gradient-text hidden sm:inline">Electronics Journey</span>
             <span className="font-bold text-lg gradient-text sm:hidden">EJ</span>
           </Link>
@@ -97,8 +95,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm glass-strong rounded-3xl p-7 glow-soft border border-white/10 animate-in zoom-in-95 duration-200"
           >
-            <div className="mx-auto h-14 w-14 rounded-2xl gradient-bg grid place-items-center glow-soft mb-4">
-              <Zap className="h-7 w-7 text-white" />
+            <div className="mx-auto h-16 w-16 rounded-full overflow-hidden glow-soft mb-4">
+              <img src="/logo.PNG" alt="Electronics Journey" className="h-full w-full object-cover" />
             </div>
             <h3 className="text-xl font-bold text-center gradient-text">Leaving so soon?</h3>
             <p className="text-sm text-center text-muted-foreground mt-2 leading-relaxed">

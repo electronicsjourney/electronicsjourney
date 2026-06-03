@@ -59,29 +59,38 @@ function Index() {
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl glass-strong p-8 md:p-12 mb-10">
         <div className="absolute inset-0 opacity-50" style={{ background: "var(--gradient-glow)" }} />
-        <div className="relative max-w-2xl">
-          <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs mb-4">
-            <Sparkles className="h-3 w-3 text-primary" />
-            <span>Welcome{profile ? `, @${profile.username}` : " to EJ"}</span>
+        <div className="relative flex flex-col md:flex-row md:items-center gap-8">
+          <div className="flex-shrink-0 flex justify-center md:justify-start">
+            <img
+              src="/logo.PNG"
+              alt="Electronics Journey"
+              className="h-32 w-32 md:h-40 md:w-40 rounded-full object-cover glow"
+            />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            <span className="gradient-text">Learn. Build.</span><br />Innovate.
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            The community for electronics, robotics, Arduino, IoT & AI hardware makers.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/projects/new" className="inline-flex items-center gap-2 rounded-full gradient-bg px-6 py-3 font-medium text-white glow">
-              Share a project <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/quick-learn" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
-              Quick Learn
-            </Link>
-            {!user && (
-              <Link to="/signup" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
-                Join free
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs mb-4">
+              <Sparkles className="h-3 w-3 text-primary" />
+              <span>Welcome{profile ? `, @${profile.username}` : " to EJ"}</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              <span className="gradient-text">Learn. Build.</span><br />Innovate.
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground">
+              The community for electronics, robotics, Arduino, IoT & AI hardware makers.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to="/projects/new" className="inline-flex items-center gap-2 rounded-full gradient-bg px-6 py-3 font-medium text-white glow">
+                Share a project <ArrowRight className="h-4 w-4" />
               </Link>
-            )}
+              <Link to="/quick-learn" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
+                Quick Learn
+              </Link>
+              {!user && (
+                <Link to="/signup" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
+                  Join free
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </section>
