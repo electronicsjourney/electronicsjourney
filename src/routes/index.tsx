@@ -2,131 +2,132 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
-import { ProjectCard } from "@/components/ProjectCard";
+import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/use-auth";
-import { Sparkles, Cpu, Bot, Zap, ArrowRight, Inbox } from "lucide-react";
+import { ArrowRight, Inbox, Heart, Eye, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Index });
 
-const CATEGORIES = [
-  { icon: Sparkles, label: "All", value: "all", color: "from-primary to-secondary" },
-  { icon: Cpu, label: "Arduino", value: "arduino", color: "from-purple-500 to-blue-500" },
-  { icon: Bot, label: "Robotics", value: "robotics", color: "from-blue-500 to-cyan-500" },
-  { icon: Zap, label: "IoT", value: "iot", color: "from-pink-500 to-purple-500" },
-  { icon: Sparkles, label: "AI Hardware", value: "ai", color: "from-cyan-500 to-purple-500" },
-];
+const FILTERS = ["All", "Arduino", "ESP32", "Robotics", "IoT", "AI Hardware", "Beginner", "Advanced"];
+const DIFF_COLORS: Record<string, string> = {
+  Beginner: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  Intermediate: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  Advanced: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+};
 
 function Index() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCat, setActiveCat] = useState<string>("all");
+  const [active, setActive] = useState("All");
+  const [stats, setStats] = useState({ projects: 0, makers: 0 });
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("projects")
-        .select("*, profiles!projects_user_id_fkey(username, avatar_url)")
+        .select("*, profiles!projects_user_id_fkey(username, avatar_url, display_name)")
         .order("created_at", { ascending: false })
-        .limit(48);
+        .limit(60);
       const withCounts = await Promise.all(
         (data ?? []).map(async (p: any) => {
-          const [{ count: likes }, { count: comments }] = await Promise.all([
-            supabase.from("project_likes").select("*", { count: "exact", head: true }).eq("project_id", p.id),
-            supabase.from("project_comments").select("*", { count: "exact", head: true }).eq("project_id", p.id),
-          ]);
-          return { ...p, likes_count: likes ?? 0, comments_count: comments ?? 0 };
+          const { count: likes } = await supabase
+            .from("project_likes").select("*", { count: "exact", head: true }).eq("project_id", p.id);
+          return { ...p, likes_count: likes ?? 0 };
         })
       );
       setProjects(withCounts);
       setLoading(false);
+
+      const [{ count: pc }, { count: mc }] = await Promise.all([
+        supabase.from("projects").select("*", { count: "exact", head: true }),
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+      ]);
+      setStats({ projects: pc ?? 0, makers: mc ?? 0 });
     })();
   }, []);
 
   const filtered = useMemo(() => {
-    if (activeCat === "all") return projects;
-    const needle = activeCat.toLowerCase();
+    if (active === "All") return projects;
+    const n = active.toLowerCase();
     return projects.filter((p) => {
-      const cat = (p.category ?? "").toLowerCase();
-      const tags: string[] = (p.tags ?? []).map((t: string) => t.toLowerCase());
-      const title = (p.title ?? "").toLowerCase();
-      return cat.includes(needle) || tags.some((t) => t.includes(needle)) || title.includes(needle);
+      const hay = [
+        p.category, p.difficulty, p.title, ...(p.tags ?? []),
+      ].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(n);
     });
-  }, [projects, activeCat]);
+  }, [projects, active]);
 
   return (
     <AppShell>
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl glass-strong p-8 md:p-12 mb-10">
-        <div className="absolute inset-0 opacity-50" style={{ background: "var(--gradient-glow)" }} />
-        <div className="relative flex flex-col md:flex-row md:items-center gap-8">
-          <div className="flex-shrink-0 flex justify-center md:justify-start">
-            <img
-              src="/logo.PNG"
-              alt="Electronics Journey"
-              className="h-32 w-32 md:h-40 md:w-40 rounded-full object-cover glow"
-            />
+      <section className="relative overflow-hidden rounded-3xl glass-strong p-8 md:p-14 mb-8">
+        <div className="absolute inset-0 opacity-60" style={{ background: "var(--gradient-glow)" }} />
+        <div className="relative max-w-3xl">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs mb-5">
+            <Sparkles className="h-3 w-3 text-primary" />
+            <span>India's maker community</span>
           </div>
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs mb-4">
-              <Sparkles className="h-3 w-3 text-primary" />
-              <span>Welcome{profile ? `, @${profile.username}` : " to EJ"}</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              <span className="gradient-text">Learn. Build.</span><br />Innovate.
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              The community for electronics, robotics, Arduino, IoT & AI hardware makers.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/projects/new" className="inline-flex items-center gap-2 rounded-full gradient-bg px-6 py-3 font-medium text-white glow">
-                Share a project <ArrowRight className="h-4 w-4" />
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+            <span className="gradient-text">Build. Learn.</span><br />Innovate.
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            India's maker community for Arduino, IoT, Robotics & AI Hardware.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/projects/new" className="inline-flex items-center gap-2 rounded-full gradient-bg px-6 py-3 font-medium text-white glow">
+              Share a project <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/quick-learn" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
+              Quick Learn
+            </Link>
+            {!user && (
+              <Link to="/signup" className="inline-flex items-center gap-2 rounded-full border border-primary/50 text-primary px-6 py-3 font-medium hover:bg-primary/10 transition">
+                Join free
               </Link>
-              <Link to="/quick-learn" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
-                Quick Learn
-              </Link>
-              {!user && (
-                <Link to="/signup" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 font-medium">
-                  Join free
-                </Link>
-              )}
-            </div>
+            )}
+          </div>
+          <div className="mt-6 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{stats.projects.toLocaleString()}</span> projects shared ·{" "}
+            <span className="font-semibold text-foreground">{stats.makers.toLocaleString()}</span> makers joined
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
-        {CATEGORIES.map(({ icon: Icon, label, value, color }) => {
-          const isActive = activeCat === value;
-          return (
-            <button
-              key={value}
-              onClick={() => setActiveCat(value)}
-              className={`glass rounded-2xl p-4 text-left transition group ${
-                isActive ? "ring-2 ring-primary glow-soft -translate-y-0.5" : "hover:glow-soft"
-              }`}
-            >
-              <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${color} grid place-items-center mb-2 transition ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                <Icon className="h-5 w-5 text-white" />
-              </div>
-              <div className={`font-medium ${isActive ? "gradient-text" : ""}`}>{label}</div>
-            </button>
-          );
-        })}
-      </section>
+      {/* Filter pills */}
+      <div className="mb-6 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 min-w-max pb-2">
+          {FILTERS.map((f) => {
+            const isOn = active === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setActive(f)}
+                className={`px-4 h-9 rounded-full text-sm font-medium whitespace-nowrap transition border ${
+                  isOn
+                    ? "gradient-bg text-white border-transparent glow-soft"
+                    : "glass border-white/10 hover:border-primary/40"
+                }`}
+              >
+                {f}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Feed */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">
-            {activeCat === "all" ? "Trending projects" : `${CATEGORIES.find(c => c.value === activeCat)?.label} projects`}
+            {active === "All" ? "Trending projects" : `${active} projects`}
             {!loading && <span className="ml-2 text-sm font-normal text-muted-foreground">({filtered.length})</span>}
           </h2>
           <Link to="/projects/new" className="text-sm text-primary hover:underline">+ New project</Link>
         </div>
+
         {loading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="glass rounded-2xl aspect-[4/3] animate-pulse" />
             ))}
@@ -136,15 +137,13 @@ function Index() {
             <div className="mx-auto h-14 w-14 rounded-full glass grid place-items-center mb-4">
               <Inbox className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-lg">No posts found</h3>
+            <h3 className="font-semibold text-lg">No projects found</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {activeCat === "all"
-                ? "Be the first to share a project with the community."
-                : `No projects in ${CATEGORIES.find(c => c.value === activeCat)?.label} yet.`}
+              {active === "All" ? "Be the first to share a project." : `No projects match "${active}" yet.`}
             </p>
             <div className="mt-5 flex items-center justify-center gap-2">
-              {activeCat !== "all" && (
-                <button onClick={() => setActiveCat("all")} className="rounded-full glass px-5 py-2 text-sm font-medium">
+              {active !== "All" && (
+                <button onClick={() => setActive("All")} className="rounded-full glass px-5 py-2 text-sm font-medium">
                   Show all
                 </button>
               )}
@@ -154,11 +153,60 @@ function Index() {
             </div>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((p) => <ProjectCard key={p.id} project={p} />)}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((p) => <ProjectFeedCard key={p.id} project={p} />)}
           </div>
         )}
       </section>
+
+      <Footer />
     </AppShell>
+  );
+}
+
+function ProjectFeedCard({ project }: { project: any }) {
+  const author = project.profiles ?? {};
+  const diffClass = DIFF_COLORS[project.difficulty] ?? "bg-primary/15 text-primary border-primary/30";
+  return (
+    <Link
+      to="/projects/$id"
+      params={{ id: project.id }}
+      className="group glass rounded-2xl overflow-hidden hover:glow-soft transition-all hover:-translate-y-1 flex flex-col"
+    >
+      <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 relative overflow-hidden">
+        {project.cover_image ? (
+          <img src={project.cover_image} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+        ) : (
+          <div className="w-full h-full grid place-items-center text-5xl opacity-30">⚡</div>
+        )}
+        {project.category && (
+          <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wide glass-strong rounded-full px-2.5 py-1">
+            {project.category}
+          </span>
+        )}
+        {project.difficulty && (
+          <span className={`absolute top-3 right-3 text-[10px] font-semibold rounded-full px-2.5 py-1 border ${diffClass}`}>
+            {project.difficulty}
+          </span>
+        )}
+      </div>
+      <div className="p-4 flex flex-col gap-3 flex-1">
+        <h3 className="font-semibold line-clamp-2 group-hover:gradient-text transition">{project.title}</h3>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {author.avatar_url ? (
+            <img src={author.avatar_url} className="h-6 w-6 rounded-full object-cover" alt="" />
+          ) : (
+            <div className="h-6 w-6 rounded-full gradient-bg grid place-items-center text-[10px] font-bold text-white">
+              {(author.username?.[0] ?? "?").toUpperCase()}
+            </div>
+          )}
+          <span className="truncate">@{author.username ?? "anon"}</span>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mt-auto pt-1 border-t border-white/5">
+          <span className="flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {project.likes_count ?? 0}</span>
+          <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {project.views ?? 0}</span>
+        </div>
+      </div>
+    </Link>
   );
 }

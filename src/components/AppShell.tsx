@@ -54,13 +54,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             {user ? (
-              <button onClick={() => setConfirmOut(true)} className="p-2 hover:text-destructive transition" title="Sign out">
-                <LogOut className="h-5 w-5" />
-              </button>
+              <>
+                <Link to="/notifications" className="relative p-2 hover:text-primary transition hidden sm:grid place-items-center" title="Notifications">
+                  <Bell className="h-5 w-5" />
+                  {unread > 0 && (
+                    <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-destructive text-[10px] font-bold text-white grid place-items-center">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </Link>
+                <button onClick={() => setConfirmOut(true)} className="p-2 hover:text-destructive transition" title="Sign out">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </>
             ) : (
-              <Link to="/login" className="px-4 h-9 rounded-full gradient-bg text-white text-sm font-medium grid place-items-center glow-soft">
-                Sign in
-              </Link>
+              <>
+                <Link to="/login" className="hidden sm:inline-flex items-center px-3 h-9 rounded-full text-sm font-medium hover:text-primary transition">
+                  Sign in
+                </Link>
+                <Link to="/signup" className="px-4 h-9 rounded-full gradient-bg text-white text-sm font-medium grid place-items-center glow-soft">
+                  Join free
+                </Link>
+              </>
             )}
           </div>
         </div>
