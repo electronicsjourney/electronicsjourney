@@ -47,14 +47,25 @@ function Index() {
     })();
   }, []);
 
+  const CATEGORY_FILTERS = ["Arduino", "ESP32", "Robotics", "IoT", "AI Hardware"];
+  const DIFFICULTY_FILTERS = ["Beginner", "Advanced"];
+
   const filtered = useMemo(() => {
     if (active === "All") return projects;
-    const n = active.toLowerCase();
+    const lower = active.toLowerCase();
     return projects.filter((p) => {
-      const hay = [
-        p.category, p.difficulty, p.title, ...(p.tags ?? []),
-      ].filter(Boolean).join(" ").toLowerCase();
-      return hay.includes(n);
+      const cat = (p.category ?? "").toLowerCase();
+      const diff = (p.difficulty ?? "").toLowerCase();
+      const tags = (p.tags ?? []).map((t: string) => t.toLowerCase());
+      const title = (p.title ?? "").toLowerCase();
+
+      if (DIFFICULTY_FILTERS.includes(active)) {
+        return diff === lower;
+      }
+      if (CATEGORY_FILTERS.includes(active)) {
+        return cat === lower || tags.includes(lower) || title.includes(lower);
+      }
+      return [cat, diff, title, ...tags].join(" ").includes(lower);
     });
   }, [projects, active]);
 
