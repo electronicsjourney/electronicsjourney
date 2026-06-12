@@ -16,7 +16,7 @@ export default defineConfig({
     define: {
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify("https://lkygzsxhwlewutfhdyxz.supabase.co"),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImxreWd6c3hod2xld3V0ZmhkeXh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NjI3MjUsImV4cCI6MjA5NDEzODcyNX0.2hGuISJAf-TWGOD72Nti2r59l9k6TSnP4nsnEgc4Cq0",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxreWd6c3hod2xld3V0ZmhkeXh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NjI3MjUsImV4cCI6MjA5NDEzODcyNX0.2hGuISJAf-TWGOD72Nti2r59l9k6TSnP4nsnEgc4Cq0",
       ),
     },
   },
