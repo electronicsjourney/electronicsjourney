@@ -9,11 +9,19 @@ import { ArrowRight, Inbox, Heart, Eye, Sparkles } from "lucide-react";
 export const Route = createFileRoute("/")({ component: Index });
 
 const FILTERS = ["All", "Arduino", "ESP32", "Robotics", "IoT", "AI Hardware", "Beginner", "Advanced"];
+const CATEGORY_FILTERS = ["Arduino", "ESP32", "Robotics", "IoT", "AI Hardware"];
+const DIFFICULTY_FILTERS = ["Beginner", "Advanced"];
 const DIFF_COLORS: Record<string, string> = {
   Beginner: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   Intermediate: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   Advanced: "bg-rose-500/20 text-rose-300 border-rose-500/30",
 };
+
+function getProjectCategory(project: any) {
+  if (project.category?.trim()) return project.category.trim();
+  const normalizedTags = (project.tags ?? []).map((tag: string) => tag.toLowerCase());
+  return CATEGORY_FILTERS.find((category) => normalizedTags.includes(category.toLowerCase())) ?? null;
+}
 
 function Index() {
   const { user } = useAuth();
@@ -24,32 +32,39 @@ function Index() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("projects")
-        .select("*, profiles!projects_user_id_fkey(username, avatar_url, display_name)")
+        .select("*")
         .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(60);
+      if (error) {
+        console.error("Failed to load projects", error);
+        setProjects([]);
+        setLoading(false);
+        return;
+      }
+      const rows = data ?? [];
+      const userIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean)));
+      const { data: authors, error: authorsError } = userIds.length
+        ? await supabase.from("profiles").select("id, username, avatar_url, display_name").in("id", userIds)
+        : { data: [], error: null };
+      if (authorsError) console.error("Failed to load project authors", authorsError);
+      const authorsById = new Map((authors ?? []).map((author: any) => [author.id, author]));
       const withCounts = await Promise.all(
-        (data ?? []).map(async (p: any) => {
+        rows.map(async (p: any) => {
           const { count: likes } = await supabase
             .from("project_likes").select("*", { count: "exact", head: true }).eq("project_id", p.id);
-          return { ...p, likes_count: likes ?? 0 };
+          return { ...p, category: getProjectCategory(p), profiles: authorsById.get(p.user_id) ?? null, likes_count: likes ?? 0 };
         })
       );
       setProjects(withCounts);
       setLoading(false);
 
-      const [{ count: pc }, { count: mc }] = await Promise.all([
-        supabase.from("projects").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
-      ]);
-      setStats({ projects: pc ?? 0, makers: mc ?? 0 });
+      const { count: mc } = await supabase.from("profiles").select("*", { count: "exact", head: true });
+      setStats({ projects: withCounts.length, makers: mc ?? 0 });
     })();
   }, []);
-
-  const CATEGORY_FILTERS = ["Arduino", "ESP32", "Robotics", "IoT", "AI Hardware"];
-  const DIFFICULTY_FILTERS = ["Beginner", "Advanced"];
 
   const filtered = useMemo(() => {
     if (active === "All") return projects;
