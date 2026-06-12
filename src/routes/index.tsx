@@ -27,6 +27,7 @@ function Index() {
       const { data } = await supabase
         .from("projects")
         .select("*, profiles!projects_user_id_fkey(username, avatar_url, display_name)")
+        .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(60);
       const withCounts = await Promise.all(
