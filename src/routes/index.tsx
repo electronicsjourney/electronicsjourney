@@ -62,7 +62,7 @@ function Index() {
       setLoading(false);
 
       const [{ count: pc }, { count: mc }] = await Promise.all([
-        supabase.from("projects").select("*", { count: "exact", head: true }),
+        supabase.from("projects").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("profiles").select("*", { count: "exact", head: true }),
       ]);
       setStats({ projects: pc ?? 0, makers: mc ?? 0 });
