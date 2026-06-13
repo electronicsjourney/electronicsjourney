@@ -5,7 +5,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { toast } from "sonner";
-import { Camera, Pencil, FileText, Zap, FolderOpen } from "lucide-react";
+import { Camera, Pencil, FileText, Zap, FolderOpen, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/profile/$username")({ component: ProfilePage });
 
