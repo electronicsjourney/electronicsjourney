@@ -311,15 +311,24 @@ function ProfilePage() {
         ) : (
           <div className="space-y-3">
             {drafts.map((d) => (
-              <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
-                className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
-                {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
-                  <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
-                </div>
-                <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
-              </Link>
+              <div key={d.id} className="flex items-center gap-3">
+                <Link to="/projects/new" search={{ id: d.id } as any}
+                  className="flex-1 glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
+                  {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
+                    <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
+                  </div>
+                  <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
+                </Link>
+                <button
+                  onClick={() => startDelete(d.id, d.title, "draft")}
+                  className="shrink-0 h-10 w-10 rounded-full bg-black/40 hover:bg-red-500/80 text-white grid place-items-center transition"
+                  title="Delete draft"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             ))}
           </div>
         )
