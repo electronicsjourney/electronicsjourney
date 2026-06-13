@@ -74,12 +74,33 @@ function ProfilePage() {
   };
 
   const saveProfile = async () => {
-    const { error } = await supabase.from("profiles").update({ bio, display_name: displayName }).eq("id", profile.id);
-    if (error) return toast.error(error.message);
-    toast.success("Profile updated");
-    setEditing(false);
-    await refreshProfile();
-    load();
+    const newUsername = usernameEdit.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+    if (newUsername.length < 3) return toast.error("Username must be at least 3 characters (a-z, 0-9, _)");
+    setSaving(true);
+    try {
+      if (newUsername !== profile.username) {
+        const { data: existing } = await supabase.from("profiles").select("id").eq("username", newUsername).maybeSingle();
+        if (existing && existing.id !== profile.id) {
+          setSaving(false);
+          return toast.error("Username already taken");
+        }
+      }
+      const { error } = await supabase.from("profiles")
+        .update({ bio, display_name: displayName, username: newUsername }).eq("id", profile.id);
+      if (error) throw error;
+      toast.success("Profile updated");
+      setEditing(false);
+      await refreshProfile();
+      if (newUsername !== profile.username) {
+        window.location.href = `/profile/${newUsername}`;
+        return;
+      }
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const onAvatarPick = async (file: File | null) => {
