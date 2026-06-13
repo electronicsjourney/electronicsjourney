@@ -333,6 +333,31 @@ function ProfilePage() {
           </div>
         )
       )}
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) cancelDelete(); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {deleteStage === 1 ? `Delete ${deleteTarget?.type === "draft" ? "Draft" : "Project"}?` : "Final Confirmation"}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteStage === 1
+                ? `"${deleteTarget?.title}" will be permanently removed. This action cannot be undone.`
+                : `You are about to permanently delete "${deleteTarget?.title}". This is your final chance to cancel.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button onClick={cancelDelete} className="rounded-full glass px-4 py-2 text-sm">Cancel</button>
+            <button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className={`rounded-full px-4 py-2 text-sm text-white ${deleteStage === 1 ? "bg-red-600 hover:bg-red-700" : "bg-red-700 hover:bg-red-800"}`}
+            >
+              {deleteStage === 1 ? "Yes, delete it" : (deleting ? "Deleting…" : "Permanently delete")}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
