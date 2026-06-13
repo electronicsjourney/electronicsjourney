@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { toast } from "sonner";
-import { Camera, Pencil, FileText } from "lucide-react";
+import { Camera, Pencil, FileText, Zap, FolderOpen } from "lucide-react";
 
 export const Route = createFileRoute("/profile/$username")({ component: ProfilePage });
 
