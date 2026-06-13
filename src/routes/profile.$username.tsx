@@ -136,6 +136,35 @@ function ProfilePage() {
     }
   };
 
+  const startDelete = (id: string, title: string, type: "project" | "draft") => {
+    setDeleteTarget({ id, title: title || "Untitled", type });
+    setDeleteStage(1);
+  };
+
+  const cancelDelete = () => {
+    setDeleteTarget(null);
+    setDeleteStage(1);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    if (deleteStage === 1) {
+      setDeleteStage(2);
+      return;
+    }
+    setDeleting(true);
+    const { error } = await supabase.from("projects").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(deleteTarget.type === "draft" ? "Draft deleted" : "Project deleted");
+      setDeleteTarget(null);
+      setDeleteStage(1);
+      load();
+    }
+  };
+
   if (!profile) return <AppShell><div className="text-center py-20 text-muted-foreground">Loading…</div></AppShell>;
   const isMe = user?.id === profile.id;
 
