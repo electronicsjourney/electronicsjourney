@@ -63,6 +63,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </span>
                   )}
                 </Link>
+                {profile && (
+                  <Link to={`/profile/${profile.username}`} className="hidden sm:grid place-items-center p-1 rounded-full hover:ring-2 hover:ring-primary transition" title="My profile">
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} className="h-8 w-8 rounded-full object-cover" />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full gradient-bg text-white grid place-items-center text-sm font-bold">
+                        {profile.username[0]?.toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
+                )}
                 <button onClick={() => setConfirmOut(true)} className="p-2 hover:text-destructive transition" title="Sign out">
                   <LogOut className="h-5 w-5" />
                 </button>
