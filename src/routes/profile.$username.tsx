@@ -34,6 +34,9 @@ function ProfilePage() {
   const [usernameEdit, setUsernameEdit] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string; type: "project" | "draft" } | null>(null);
+  const [deleteStage, setDeleteStage] = useState<1 | 2>(1);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
