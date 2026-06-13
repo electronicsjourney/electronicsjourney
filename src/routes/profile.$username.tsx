@@ -159,11 +159,19 @@ function ProfilePage() {
                 <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name"
                   maxLength={60}
                   className="w-full glass rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-primary" />
+                <div className="flex items-center gap-2 glass rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-primary">
+                  <span className="text-muted-foreground">@</span>
+                  <input value={usernameEdit}
+                    onChange={(e) => setUsernameEdit(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                    placeholder="username" maxLength={30}
+                    className="flex-1 bg-transparent outline-none" />
+                </div>
+                <p className="text-xs text-muted-foreground">Lowercase letters, numbers and _ only. This is how others find you in search.</p>
                 <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" rows={2} maxLength={300}
                   className="w-full glass rounded-xl px-3 py-2 outline-none resize-none focus:ring-2 focus:ring-primary" />
                 <div className="flex gap-2">
-                  <button onClick={saveProfile} className="gradient-bg text-white rounded-full px-4 py-1.5 text-sm glow-soft">Save</button>
-                  <button onClick={() => setEditing(false)} className="glass rounded-full px-4 py-1.5 text-sm">Cancel</button>
+                  <button onClick={saveProfile} disabled={saving} className="gradient-bg text-white rounded-full px-4 py-1.5 text-sm glow-soft disabled:opacity-60">{saving ? "Saving…" : "Save"}</button>
+                  <button onClick={() => setEditing(false)} disabled={saving} className="glass rounded-full px-4 py-1.5 text-sm">Cancel</button>
                 </div>
               </div>
             ) : (
