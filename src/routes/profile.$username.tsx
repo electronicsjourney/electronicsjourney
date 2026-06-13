@@ -206,20 +206,24 @@ function ProfilePage() {
         </div>
       </div>
 
-      {isMe && (
-        <div className="glass rounded-full p-1 inline-flex mb-4">
-          <button onClick={() => setTab("projects")}
-            className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "projects" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
-            Projects ({projects.length})
-          </button>
+      <div className="glass rounded-full p-1 inline-flex mb-4 flex-wrap">
+        <button onClick={() => setTab("projects")}
+          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "projects" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
+          <FolderOpen className="h-3.5 w-3.5" /> Projects ({projects.length})
+        </button>
+        <button onClick={() => setTab("quicklearns")}
+          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "quicklearns" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
+          <Zap className="h-3.5 w-3.5" /> Quick Learns ({quickLearns.length})
+        </button>
+        {isMe && (
           <button onClick={() => setTab("drafts")}
             className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "drafts" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
             <FileText className="h-3.5 w-3.5" /> Drafts ({drafts.length})
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {tab === "projects" ? (
+      {tab === "projects" && (
         projects.length === 0 ? (
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No projects yet</div>
         ) : (
@@ -227,22 +231,45 @@ function ProfilePage() {
             {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
           </div>
         )
-      ) : drafts.length === 0 ? (
-        <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No drafts</div>
-      ) : (
-        <div className="space-y-3">
-          {drafts.map((d) => (
-            <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
-              className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition block">
-              {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
-                <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
-              </div>
-              <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
-            </Link>
-          ))}
-        </div>
+      )}
+
+      {tab === "quicklearns" && (
+        quickLearns.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No quick learns yet</div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickLearns.map((q) => (
+              <Link key={q.id} to="/quick-learn" className="glass rounded-2xl overflow-hidden hover:glow-soft transition block">
+                {q.image_url && <img src={q.image_url} className="w-full h-40 object-cover" />}
+                <div className="p-4">
+                  <div className="text-xs text-primary font-medium uppercase tracking-wide">{q.category}</div>
+                  <div className="font-semibold mt-1 line-clamp-2">{q.title}</div>
+                  {q.subtitle && <div className="text-sm text-muted-foreground mt-1 line-clamp-2">{q.subtitle}</div>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === "drafts" && isMe && (
+        drafts.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No drafts</div>
+        ) : (
+          <div className="space-y-3">
+            {drafts.map((d) => (
+              <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
+                className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
+                {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
+                  <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
+                </div>
+                <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
+              </Link>
+            ))}
+          </div>
+        )
       )}
     </AppShell>
   );
