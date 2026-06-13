@@ -5,7 +5,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { toast } from "sonner";
-import { Camera, Pencil, FileText, Zap, FolderOpen } from "lucide-react";
+import { Camera, Pencil, FileText, Zap, FolderOpen, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/profile/$username")({ component: ProfilePage });
 
@@ -26,6 +34,9 @@ function ProfilePage() {
   const [usernameEdit, setUsernameEdit] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string; type: "project" | "draft" } | null>(null);
+  const [deleteStage, setDeleteStage] = useState<1 | 2>(1);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -122,6 +133,35 @@ function ProfilePage() {
       toast.error(e.message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const startDelete = (id: string, title: string, type: "project" | "draft") => {
+    setDeleteTarget({ id, title: title || "Untitled", type });
+    setDeleteStage(1);
+  };
+
+  const cancelDelete = () => {
+    setDeleteTarget(null);
+    setDeleteStage(1);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    if (deleteStage === 1) {
+      setDeleteStage(2);
+      return;
+    }
+    setDeleting(true);
+    const { error } = await supabase.from("projects").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(deleteTarget.type === "draft" ? "Draft deleted" : "Project deleted");
+      setDeleteTarget(null);
+      setDeleteStage(1);
+      load();
     }
   };
 
@@ -228,7 +268,20 @@ function ProfilePage() {
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No projects yet</div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
+            {projects.map((p) => (
+              <div key={p.id} className="relative group/card">
+                <ProjectCard project={p} />
+                {isMe && (
+                  <button
+                    onClick={() => startDelete(p.id, p.title, "project")}
+                    className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition bg-black/60 hover:bg-red-500/80 text-white rounded-full p-1.5"
+                    title="Delete project"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )
       )}
@@ -258,19 +311,53 @@ function ProfilePage() {
         ) : (
           <div className="space-y-3">
             {drafts.map((d) => (
-              <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
-                className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
-                {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
-                  <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
-                </div>
-                <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
-              </Link>
+              <div key={d.id} className="flex items-center gap-3">
+                <Link to="/projects/new" search={{ id: d.id } as any}
+                  className="flex-1 glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
+                  {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
+                    <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
+                  </div>
+                  <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
+                </Link>
+                <button
+                  onClick={() => startDelete(d.id, d.title, "draft")}
+                  className="shrink-0 h-10 w-10 rounded-full bg-black/40 hover:bg-red-500/80 text-white grid place-items-center transition"
+                  title="Delete draft"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             ))}
           </div>
         )
       )}
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) cancelDelete(); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {deleteStage === 1 ? `Delete ${deleteTarget?.type === "draft" ? "Draft" : "Project"}?` : "Final Confirmation"}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteStage === 1
+                ? `"${deleteTarget?.title}" will be permanently removed. This action cannot be undone.`
+                : `You are about to permanently delete "${deleteTarget?.title}". This is your final chance to cancel.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button onClick={cancelDelete} className="rounded-full glass px-4 py-2 text-sm">Cancel</button>
+            <button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className={`rounded-full px-4 py-2 text-sm text-white ${deleteStage === 1 ? "bg-red-600 hover:bg-red-700" : "bg-red-700 hover:bg-red-800"}`}
+            >
+              {deleteStage === 1 ? "Yes, delete it" : (deleting ? "Deleting…" : "Permanently delete")}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
