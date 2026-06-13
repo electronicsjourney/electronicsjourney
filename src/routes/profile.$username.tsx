@@ -15,14 +15,17 @@ function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [drafts, setDrafts] = useState<any[]>([]);
-  const [tab, setTab] = useState<"projects" | "drafts">("projects");
+  const [quickLearns, setQuickLearns] = useState<any[]>([]);
+  const [tab, setTab] = useState<"projects" | "quicklearns" | "drafts">("projects");
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [usernameEdit, setUsernameEdit] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
