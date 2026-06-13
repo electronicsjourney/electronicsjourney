@@ -32,11 +32,15 @@ function ProfilePage() {
     const { data: p } = await supabase.from("profiles").select("*").eq("username", username).maybeSingle();
     setProfile(p);
     if (!p) return;
-    setBio(p.bio ?? ""); setDisplayName(p.display_name ?? "");
+    setBio(p.bio ?? ""); setDisplayName(p.display_name ?? ""); setUsernameEdit(p.username ?? "");
 
     const { data: pj } = await supabase
       .from("projects").select("*").eq("user_id", p.id).eq("status", "published").order("published_at", { ascending: false });
     setProjects(pj ?? []);
+
+    const { data: ql } = await supabase
+      .from("quick_learn").select("*").eq("author_id", p.id).order("published_at", { ascending: false });
+    setQuickLearns(ql ?? []);
 
     if (user?.id === p.id) {
       const { data: dr } = await supabase
