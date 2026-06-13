@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { toast } from "sonner";
-import { Camera, Pencil, FileText } from "lucide-react";
+import { Camera, Pencil, FileText, Zap, FolderOpen } from "lucide-react";
 
 export const Route = createFileRoute("/profile/$username")({ component: ProfilePage });
 
@@ -15,25 +15,32 @@ function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [drafts, setDrafts] = useState<any[]>([]);
-  const [tab, setTab] = useState<"projects" | "drafts">("projects");
+  const [quickLearns, setQuickLearns] = useState<any[]>([]);
+  const [tab, setTab] = useState<"projects" | "quicklearns" | "drafts">("projects");
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [usernameEdit, setUsernameEdit] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const { data: p } = await supabase.from("profiles").select("*").eq("username", username).maybeSingle();
     setProfile(p);
     if (!p) return;
-    setBio(p.bio ?? ""); setDisplayName(p.display_name ?? "");
+    setBio(p.bio ?? ""); setDisplayName(p.display_name ?? ""); setUsernameEdit(p.username ?? "");
 
     const { data: pj } = await supabase
       .from("projects").select("*").eq("user_id", p.id).eq("status", "published").order("published_at", { ascending: false });
     setProjects(pj ?? []);
+
+    const { data: ql } = await supabase
+      .from("quick_learn").select("*").eq("author_id", p.id).order("published_at", { ascending: false });
+    setQuickLearns(ql ?? []);
 
     if (user?.id === p.id) {
       const { data: dr } = await supabase
@@ -67,12 +74,33 @@ function ProfilePage() {
   };
 
   const saveProfile = async () => {
-    const { error } = await supabase.from("profiles").update({ bio, display_name: displayName }).eq("id", profile.id);
-    if (error) return toast.error(error.message);
-    toast.success("Profile updated");
-    setEditing(false);
-    await refreshProfile();
-    load();
+    const newUsername = usernameEdit.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+    if (newUsername.length < 3) return toast.error("Username must be at least 3 characters (a-z, 0-9, _)");
+    setSaving(true);
+    try {
+      if (newUsername !== profile.username) {
+        const { data: existing } = await supabase.from("profiles").select("id").eq("username", newUsername).maybeSingle();
+        if (existing && existing.id !== profile.id) {
+          setSaving(false);
+          return toast.error("Username already taken");
+        }
+      }
+      const { error } = await supabase.from("profiles")
+        .update({ bio, display_name: displayName, username: newUsername }).eq("id", profile.id);
+      if (error) throw error;
+      toast.success("Profile updated");
+      setEditing(false);
+      await refreshProfile();
+      if (newUsername !== profile.username) {
+        window.location.href = `/profile/${newUsername}`;
+        return;
+      }
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const onAvatarPick = async (file: File | null) => {
@@ -131,11 +159,19 @@ function ProfilePage() {
                 <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name"
                   maxLength={60}
                   className="w-full glass rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-primary" />
+                <div className="flex items-center gap-2 glass rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-primary">
+                  <span className="text-muted-foreground">@</span>
+                  <input value={usernameEdit}
+                    onChange={(e) => setUsernameEdit(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                    placeholder="username" maxLength={30}
+                    className="flex-1 bg-transparent outline-none" />
+                </div>
+                <p className="text-xs text-muted-foreground">Lowercase letters, numbers and _ only. This is how others find you in search.</p>
                 <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" rows={2} maxLength={300}
                   className="w-full glass rounded-xl px-3 py-2 outline-none resize-none focus:ring-2 focus:ring-primary" />
                 <div className="flex gap-2">
-                  <button onClick={saveProfile} className="gradient-bg text-white rounded-full px-4 py-1.5 text-sm glow-soft">Save</button>
-                  <button onClick={() => setEditing(false)} className="glass rounded-full px-4 py-1.5 text-sm">Cancel</button>
+                  <button onClick={saveProfile} disabled={saving} className="gradient-bg text-white rounded-full px-4 py-1.5 text-sm glow-soft disabled:opacity-60">{saving ? "Saving…" : "Save"}</button>
+                  <button onClick={() => setEditing(false)} disabled={saving} className="glass rounded-full px-4 py-1.5 text-sm">Cancel</button>
                 </div>
               </div>
             ) : (
@@ -170,20 +206,24 @@ function ProfilePage() {
         </div>
       </div>
 
-      {isMe && (
-        <div className="glass rounded-full p-1 inline-flex mb-4">
-          <button onClick={() => setTab("projects")}
-            className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "projects" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
-            Projects ({projects.length})
-          </button>
+      <div className="glass rounded-full p-1 inline-flex mb-4 flex-wrap">
+        <button onClick={() => setTab("projects")}
+          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "projects" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
+          <FolderOpen className="h-3.5 w-3.5" /> Projects ({projects.length})
+        </button>
+        <button onClick={() => setTab("quicklearns")}
+          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "quicklearns" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
+          <Zap className="h-3.5 w-3.5" /> Quick Learns ({quickLearns.length})
+        </button>
+        {isMe && (
           <button onClick={() => setTab("drafts")}
             className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${tab === "drafts" ? "gradient-bg text-white" : "text-muted-foreground"}`}>
             <FileText className="h-3.5 w-3.5" /> Drafts ({drafts.length})
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {tab === "projects" ? (
+      {tab === "projects" && (
         projects.length === 0 ? (
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No projects yet</div>
         ) : (
@@ -191,22 +231,45 @@ function ProfilePage() {
             {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
           </div>
         )
-      ) : drafts.length === 0 ? (
-        <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No drafts</div>
-      ) : (
-        <div className="space-y-3">
-          {drafts.map((d) => (
-            <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
-              className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition block">
-              {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
-                <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
-              </div>
-              <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
-            </Link>
-          ))}
-        </div>
+      )}
+
+      {tab === "quicklearns" && (
+        quickLearns.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No quick learns yet</div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickLearns.map((q) => (
+              <Link key={q.id} to="/quick-learn" className="glass rounded-2xl overflow-hidden hover:glow-soft transition block">
+                {q.image_url && <img src={q.image_url} className="w-full h-40 object-cover" />}
+                <div className="p-4">
+                  <div className="text-xs text-primary font-medium uppercase tracking-wide">{q.category}</div>
+                  <div className="font-semibold mt-1 line-clamp-2">{q.title}</div>
+                  {q.subtitle && <div className="text-sm text-muted-foreground mt-1 line-clamp-2">{q.subtitle}</div>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === "drafts" && isMe && (
+        drafts.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No drafts</div>
+        ) : (
+          <div className="space-y-3">
+            {drafts.map((d) => (
+              <Link key={d.id} to="/projects/new" search={{ id: d.id } as any}
+                className="glass rounded-2xl p-4 flex items-center gap-4 hover:glow-soft transition">
+                {d.cover_image && <img src={d.cover_image} className="h-16 w-24 object-cover rounded-lg" />}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{d.title || "Untitled draft"}</div>
+                  <div className="text-xs text-muted-foreground">Updated {new Date(d.updated_at).toLocaleString()}</div>
+                </div>
+                <span className="text-xs glass rounded-full px-3 py-1">Draft</span>
+              </Link>
+            ))}
+          </div>
+        )
       )}
     </AppShell>
   );
