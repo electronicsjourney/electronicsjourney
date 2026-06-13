@@ -268,7 +268,20 @@ function ProfilePage() {
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No projects yet</div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
+            {projects.map((p) => (
+              <div key={p.id} className="relative group/card">
+                <ProjectCard project={p} />
+                {isMe && (
+                  <button
+                    onClick={() => startDelete(p.id, p.title, "project")}
+                    className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition bg-black/60 hover:bg-red-500/80 text-white rounded-full p-1.5"
+                    title="Delete project"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )
       )}
