@@ -226,6 +226,7 @@ function NewProject() {
               category={category} setCategory={setCategory}
               tags={tags} setTags={setTags} tagInput={tagInput} setTagInput={setTagInput}
               components={components} setComponents={setComponents}
+              downloadable={downloadable} setDownloadable={setDownloadable}
               onBack={() => setStage(0)} onNext={() => setStage(2)}
             />
           )}
