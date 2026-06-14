@@ -6,7 +6,8 @@ import { AppShell } from "@/components/AppShell";
 import { ProjectBody } from "./projects.new";
 import { CodeBlock } from "@/components/CodeBlock";
 import { toast } from "sonner";
-import { Heart, Bookmark, MessageCircle, Eye, Trash2, Send, Pencil } from "lucide-react";
+import { Heart, Bookmark, MessageCircle, Eye, Trash2, Send, Pencil, Download } from "lucide-react";
+import { generateProjectPDF } from "@/lib/project-pdf";
 
 export const Route = createFileRoute("/projects/$id")({ component: ProjectPage });
 
