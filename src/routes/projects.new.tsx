@@ -92,8 +92,9 @@ function NewProject() {
     difficulty, build_cost: buildCost || null, build_time: buildTime || null, category,
     cover_image: coverImage,
     tags, components, content_blocks: blocks, steps,
+    downloadable,
     status: "draft" as const,
-  }), [title, tagline, difficulty, buildCost, buildTime, category, coverImage, tags, components, blocks, steps]);
+  }), [title, tagline, difficulty, buildCost, buildTime, category, coverImage, tags, components, blocks, steps, downloadable]);
 
   const saveDraft = async (silent = false) => {
     if (!user) return;
