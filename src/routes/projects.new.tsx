@@ -80,6 +80,7 @@ function NewProject() {
       setComponents((data.components as Component[]) ?? []);
       setBlocks((data.content_blocks as Block[]) ?? []);
       setSteps((data.steps as Step[]) ?? []);
+      setDownloadable((data as any).downloadable ?? true);
       if (data.cover_image) setStage(1);
     })();
   }, [projectId, user]);
