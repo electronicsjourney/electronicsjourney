@@ -60,6 +60,7 @@ function NewProject() {
   const [components, setComponents] = useState<Component[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
+  const [downloadable, setDownloadable] = useState(true);
   const [preview, setPreview] = useState(false);
 
   // load existing draft
