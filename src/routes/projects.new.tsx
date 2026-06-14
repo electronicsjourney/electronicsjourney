@@ -60,6 +60,7 @@ function NewProject() {
   const [components, setComponents] = useState<Component[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
+  const [downloadable, setDownloadable] = useState(true);
   const [preview, setPreview] = useState(false);
 
   // load existing draft
@@ -79,6 +80,7 @@ function NewProject() {
       setComponents((data.components as Component[]) ?? []);
       setBlocks((data.content_blocks as Block[]) ?? []);
       setSteps((data.steps as Step[]) ?? []);
+      setDownloadable((data as any).downloadable ?? true);
       if (data.cover_image) setStage(1);
     })();
   }, [projectId, user]);
@@ -90,8 +92,9 @@ function NewProject() {
     difficulty, build_cost: buildCost || null, build_time: buildTime || null, category,
     cover_image: coverImage,
     tags, components, content_blocks: blocks, steps,
+    downloadable,
     status: "draft" as const,
-  }), [title, tagline, difficulty, buildCost, buildTime, category, coverImage, tags, components, blocks, steps]);
+  }), [title, tagline, difficulty, buildCost, buildTime, category, coverImage, tags, components, blocks, steps, downloadable]);
 
   const saveDraft = async (silent = false) => {
     if (!user) return;
@@ -223,6 +226,7 @@ function NewProject() {
               category={category} setCategory={setCategory}
               tags={tags} setTags={setTags} tagInput={tagInput} setTagInput={setTagInput}
               components={components} setComponents={setComponents}
+              downloadable={downloadable} setDownloadable={setDownloadable}
               onBack={() => setStage(0)} onNext={() => setStage(2)}
             />
           )}
@@ -379,6 +383,17 @@ function DetailsStage(p: any) {
             <Plus className="h-3.5 w-3.5" /> Add component
           </button>
         </div>
+      </Field>
+
+      <Field label="Allow PDF download">
+        <label className="glass rounded-xl p-3 flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked={p.downloadable} onChange={(e) => p.setDownloadable(e.target.checked)}
+            className="h-4 w-4 accent-primary" />
+          <div className="text-sm">
+            <div className="font-medium">Let visitors download this project as a PDF</div>
+            <div className="text-xs text-muted-foreground">Includes cover, components, steps and images. You can change this anytime.</div>
+          </div>
+        </label>
       </Field>
 
       <div className="flex justify-between">

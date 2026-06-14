@@ -6,7 +6,8 @@ import { AppShell } from "@/components/AppShell";
 import { ProjectBody } from "./projects.new";
 import { CodeBlock } from "@/components/CodeBlock";
 import { toast } from "sonner";
-import { Heart, Bookmark, MessageCircle, Eye, Trash2, Send, Pencil } from "lucide-react";
+import { Heart, Bookmark, MessageCircle, Eye, Trash2, Send, Pencil, Download } from "lucide-react";
+import { generateProjectPDF } from "@/lib/project-pdf";
 
 export const Route = createFileRoute("/projects/$id")({ component: ProjectPage });
 
@@ -156,6 +157,16 @@ function ProjectPage() {
             <button onClick={toggleBookmark} className={`glass rounded-full p-2 ${bookmarked ? "text-primary" : ""}`}>
               <Bookmark className={`h-4 w-4 ${bookmarked ? "fill-current" : ""}`} />
             </button>
+            {(project.downloadable || isOwner) && (
+              <button
+                onClick={async () => {
+                  try { toast.message("Preparing PDF…"); await generateProjectPDF(project); }
+                  catch (e: any) { toast.error(e?.message ?? "Failed to export PDF"); }
+                }}
+                className="glass rounded-full p-2" title="Download as PDF">
+                <Download className="h-4 w-4" />
+              </button>
+            )}
             {isOwner && (
               <Link to="/projects/new" search={{ id: project.id } as any} className="glass rounded-full p-2"><Pencil className="h-4 w-4" /></Link>
             )}
