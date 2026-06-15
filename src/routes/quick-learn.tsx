@@ -20,10 +20,15 @@ type Post = {
   category: string;
   image_url: string | null;
   source: string | null;
-  author_id: string;
+  author_id: string | null;
   tags: string[] | null;
   published_at: string;
   created_at: string;
+  auto_generated?: boolean | null;
+  source_name?: string | null;
+  source_url?: string | null;
+  original_url?: string | null;
+  featured?: boolean | null;
   // enriched
   author?: Profile | null;
   likes?: number;
@@ -64,7 +69,7 @@ function QuickLearn() {
     const list = (data ?? []) as Post[];
 
     // Enrich authors + counts in parallel
-    const authorIds = Array.from(new Set(list.map((p) => p.author_id)));
+    const authorIds = Array.from(new Set(list.map((p) => p.author_id).filter(Boolean) as string[]));
     const ids = list.map((p) => p.id);
     const [authorsRes, likesRes, commentsRes] = await Promise.all([
       authorIds.length
@@ -80,14 +85,15 @@ function QuickLearn() {
     const likeCount = new Map<string, number>();
     (likesRes.data ?? []).forEach((r: any) => likeCount.set(r.post_id, (likeCount.get(r.post_id) ?? 0) + 1));
 
-    setAllPosts(
-      list.map((p) => ({
-        ...p,
-        author: authorMap.get(p.author_id) ?? null,
-        likes: likeCount.get(p.id) ?? 0,
-        comments: 0,
-      })),
-    );
+    const enriched = list.map((p) => ({
+      ...p,
+      author: p.author_id ? authorMap.get(p.author_id) ?? null : null,
+      likes: likeCount.get(p.id) ?? 0,
+      comments: 0,
+    }));
+    // Featured first, then by published_at desc (which is already the SQL order)
+    enriched.sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
+    setAllPosts(enriched);
     setLoading(false);
   }, []);
 
