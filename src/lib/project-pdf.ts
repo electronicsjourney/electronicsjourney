@@ -488,6 +488,17 @@ export async function generateProjectPDF(project: any) {
   doc.save(`${safe}.pdf`);
 }
 
+function toUrlSafeB64(s: string): string {
+  try {
+    const bytes = new TextEncoder().encode(s);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  } catch {
+    return "";
+  }
+}
+
 function drawCode(
   doc: jsPDF,
   code: string,
@@ -496,6 +507,7 @@ function drawCode(
   const pad = 12;
   const fontSize = 9;
   const lineH = 12;
+  const headerH = 24;
   doc.setFont("courier", "normal");
   doc.setFontSize(fontSize);
   const allLines: string[] = [];
@@ -503,33 +515,57 @@ function drawCode(
     const wrapped = doc.splitTextToSize(raw || " ", ctx.contentW - pad * 2) as string[];
     allLines.push(...wrapped);
   }
-  // chunk lines per page
+
+  const base =
+    (typeof window !== "undefined" && window.location?.origin) ||
+    "https://electronicsjourney.lovable.app";
+  const copyUrl = `${base}/copy?c=${toUrlSafeB64(code)}`;
+
   let idx = 0;
   let y = ctx.y;
+  let first = true;
   while (idx < allLines.length) {
-    const available = ctx.pageH - 50 - y - pad * 2;
+    const available = ctx.pageH - 50 - y - pad * 2 - headerH;
     const maxLines = Math.max(1, Math.floor(available / lineH));
     if (maxLines < 4 && idx === 0) {
       ctx.newPage();
-      y = (doc as any).internal.pageSize.getHeight() - (doc as any).internal.pageSize.getHeight() + 56;
+      y = 56;
       continue;
     }
     const chunk = allLines.slice(idx, idx + maxLines);
-    const boxH = chunk.length * lineH + pad * 2;
-    // background
+    const boxH = chunk.length * lineH + pad * 2 + headerH;
     doc.setFillColor(C.codeBg[0], C.codeBg[1], C.codeBg[2]);
     doc.roundedRect(ctx.margin, y, ctx.contentW, boxH, 6, 6, "F");
-    // text
+    doc.setFillColor(255, 95, 86); doc.circle(ctx.margin + pad + 2, y + 12, 3, "F");
+    doc.setFillColor(255, 189, 46); doc.circle(ctx.margin + pad + 12, y + 12, 3, "F");
+    doc.setFillColor(39, 201, 63); doc.circle(ctx.margin + pad + 22, y + 12, 3, "F");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(170, 175, 195);
+    doc.text(first ? "CODE" : "CODE (cont.)", ctx.margin + pad + 36, y + 15);
+    const pillLabel = "Copy code";
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    const pillW = doc.getTextWidth(pillLabel) + 18;
+    const pillX = ctx.margin + ctx.contentW - pad - pillW;
+    const pillY = y + 4;
+    doc.setFillColor(C.brand[0], C.brand[1], C.brand[2]);
+    doc.roundedRect(pillX, pillY, pillW, 16, 8, 8, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.textWithLink(pillLabel, pillX + 9, pillY + 11, { url: copyUrl });
+    (doc as any).link?.(pillX, pillY, pillW, 16, { url: copyUrl });
+
     doc.setTextColor(C.codeFg[0], C.codeFg[1], C.codeFg[2]);
     doc.setFont("courier", "normal");
     doc.setFontSize(fontSize);
-    let ly = y + pad + fontSize;
+    let ly = y + headerH + pad + fontSize - 2;
     for (const ln of chunk) {
       doc.text(ln, ctx.margin + pad, ly);
       ly += lineH;
     }
     y += boxH + 8;
     idx += chunk.length;
+    first = false;
     if (idx < allLines.length) {
       ctx.newPage();
       y = 56;
