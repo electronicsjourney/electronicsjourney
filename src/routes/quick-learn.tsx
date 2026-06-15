@@ -412,6 +412,16 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
         <span className="absolute top-3 left-3 rounded-full bg-cyan-400/20 backdrop-blur-md border border-cyan-300/30 text-cyan-200 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
           {post.category}
         </span>
+        {post.auto_generated && (
+          <span className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-300/30 text-amber-100 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
+            News · {post.source_name || post.source || "Source"}
+          </span>
+        )}
+        {post.featured && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-fuchsia-500/30 backdrop-blur-md border border-fuchsia-300/40 text-fuchsia-100 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
+            ★ Featured
+          </span>
+        )}
         {canDelete && (
           <button onClick={remove} className="absolute top-3 right-3 h-8 w-8 grid place-items-center rounded-full bg-red-500/20 backdrop-blur-md border border-red-400/30 hover:bg-red-500/40 transition">
             <Trash2 className="h-4 w-4 text-red-200" />
