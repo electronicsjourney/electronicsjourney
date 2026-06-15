@@ -36,8 +36,9 @@ type Post = {
 };
 
 const CATEGORIES = [
-  "arduino", "esp32", "robotics", "iot", "ai-hardware",
-  "circuit-tips", "components", "beginner", "advanced",
+  "arduino", "esp32", "raspberry-pi", "robotics", "ai-hardware",
+  "semiconductor", "engineering", "electronics",
+  "iot", "circuit-tips", "components", "beginner", "advanced",
 ];
 
 type FilterKey = "all" | "recent" | "popular" | "liked" | string;
