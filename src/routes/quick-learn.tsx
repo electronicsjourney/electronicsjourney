@@ -436,11 +436,15 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
         </h1>
         {post.subtitle && <p className="mt-2 text-sm md:text-base text-white/70 leading-relaxed">{post.subtitle}</p>}
         <div className="mt-4 text-[15px] md:text-[16px] leading-[1.7] text-white/85 whitespace-pre-wrap">{post.body}</div>
-        {post.source && (
+        {post.auto_generated && post.original_url ? (
+          <a href={post.original_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-200 hover:text-amber-100">
+            <ExternalLink className="h-3.5 w-3.5" /> Read original on {post.source_name || "source"}
+          </a>
+        ) : post.source ? (
           <a href={post.source} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-cyan-300 hover:text-cyan-200">
             <ExternalLink className="h-3.5 w-3.5" /> Source
           </a>
-        )}
+        ) : null}
         {!!(post.tags && post.tags.length) && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {post.tags!.slice(0, 6).map((t) => (
@@ -466,6 +470,16 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
               <div className="text-[11px] text-white/50 truncate">@{post.author.username} · {timeAgo(post.published_at)}</div>
             </div>
           </Link>
+        ) : post.auto_generated ? (
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-9 w-9 rounded-full grid place-items-center bg-gradient-to-br from-amber-400 to-rose-500 text-sm font-bold">
+              {(post.source_name || "N")[0]?.toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{post.source_name || "News"}</div>
+              <div className="text-[11px] text-white/50 truncate">Electronics Journey News · {timeAgo(post.published_at)}</div>
+            </div>
+          </div>
         ) : <div />}
 
         <div className="flex items-center gap-1.5">
