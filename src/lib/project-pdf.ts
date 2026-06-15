@@ -516,10 +516,12 @@ function drawCode(
     allLines.push(...wrapped);
   }
 
-  const base =
-    (typeof window !== "undefined" && window.location?.origin) ||
-    "https://electronicsjourney.lovable.app";
-  const copyUrl = `${base}/copy?c=${toUrlSafeB64(code)}`;
+  // Always send the user to the live published site so the copy link works
+  // regardless of where the PDF was generated (preview vs prod). The FULL code
+  // is encoded once and reused on every chunk of a multi-page block, so a
+  // single tap copies the entire snippet — never just one page.
+  const base = "https://electronicsjourney.lovable.app";
+  const copyUrl = `${base}/copy#c=${toUrlSafeB64(code)}`;
 
   let idx = 0;
   let y = ctx.y;

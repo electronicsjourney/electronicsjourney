@@ -20,10 +20,15 @@ type Post = {
   category: string;
   image_url: string | null;
   source: string | null;
-  author_id: string;
+  author_id: string | null;
   tags: string[] | null;
   published_at: string;
   created_at: string;
+  auto_generated?: boolean | null;
+  source_name?: string | null;
+  source_url?: string | null;
+  original_url?: string | null;
+  featured?: boolean | null;
   // enriched
   author?: Profile | null;
   likes?: number;
@@ -31,8 +36,9 @@ type Post = {
 };
 
 const CATEGORIES = [
-  "arduino", "esp32", "robotics", "iot", "ai-hardware",
-  "circuit-tips", "components", "beginner", "advanced",
+  "arduino", "esp32", "raspberry-pi", "robotics", "ai-hardware",
+  "semiconductor", "engineering", "electronics",
+  "iot", "circuit-tips", "components", "beginner", "advanced",
 ];
 
 type FilterKey = "all" | "recent" | "popular" | "liked" | string;
@@ -64,7 +70,7 @@ function QuickLearn() {
     const list = (data ?? []) as Post[];
 
     // Enrich authors + counts in parallel
-    const authorIds = Array.from(new Set(list.map((p) => p.author_id)));
+    const authorIds = Array.from(new Set(list.map((p) => p.author_id).filter(Boolean) as string[]));
     const ids = list.map((p) => p.id);
     const [authorsRes, likesRes, commentsRes] = await Promise.all([
       authorIds.length
@@ -80,14 +86,15 @@ function QuickLearn() {
     const likeCount = new Map<string, number>();
     (likesRes.data ?? []).forEach((r: any) => likeCount.set(r.post_id, (likeCount.get(r.post_id) ?? 0) + 1));
 
-    setAllPosts(
-      list.map((p) => ({
-        ...p,
-        author: authorMap.get(p.author_id) ?? null,
-        likes: likeCount.get(p.id) ?? 0,
-        comments: 0,
-      })),
-    );
+    const enriched = list.map((p) => ({
+      ...p,
+      author: p.author_id ? authorMap.get(p.author_id) ?? null : null,
+      likes: likeCount.get(p.id) ?? 0,
+      comments: 0,
+    }));
+    // Featured first, then by published_at desc (which is already the SQL order)
+    enriched.sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
+    setAllPosts(enriched);
     setLoading(false);
   }, []);
 
@@ -406,6 +413,16 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
         <span className="absolute top-3 left-3 rounded-full bg-cyan-400/20 backdrop-blur-md border border-cyan-300/30 text-cyan-200 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
           {post.category}
         </span>
+        {post.auto_generated && (
+          <span className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-300/30 text-amber-100 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
+            News · {post.source_name || post.source || "Source"}
+          </span>
+        )}
+        {post.featured && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-fuchsia-500/30 backdrop-blur-md border border-fuchsia-300/40 text-fuchsia-100 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1">
+            ★ Featured
+          </span>
+        )}
         {canDelete && (
           <button onClick={remove} className="absolute top-3 right-3 h-8 w-8 grid place-items-center rounded-full bg-red-500/20 backdrop-blur-md border border-red-400/30 hover:bg-red-500/40 transition">
             <Trash2 className="h-4 w-4 text-red-200" />
@@ -420,11 +437,15 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
         </h1>
         {post.subtitle && <p className="mt-2 text-sm md:text-base text-white/70 leading-relaxed">{post.subtitle}</p>}
         <div className="mt-4 text-[15px] md:text-[16px] leading-[1.7] text-white/85 whitespace-pre-wrap">{post.body}</div>
-        {post.source && (
+        {post.auto_generated && post.original_url ? (
+          <a href={post.original_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-200 hover:text-amber-100">
+            <ExternalLink className="h-3.5 w-3.5" /> Read original on {post.source_name || "source"}
+          </a>
+        ) : post.source ? (
           <a href={post.source} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-cyan-300 hover:text-cyan-200">
             <ExternalLink className="h-3.5 w-3.5" /> Source
           </a>
-        )}
+        ) : null}
         {!!(post.tags && post.tags.length) && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {post.tags!.slice(0, 6).map((t) => (
@@ -450,6 +471,16 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
               <div className="text-[11px] text-white/50 truncate">@{post.author.username} · {timeAgo(post.published_at)}</div>
             </div>
           </Link>
+        ) : post.auto_generated ? (
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-9 w-9 rounded-full grid place-items-center bg-gradient-to-br from-amber-400 to-rose-500 text-sm font-bold">
+              {(post.source_name || "N")[0]?.toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{post.source_name || "News"}</div>
+              <div className="text-[11px] text-white/50 truncate">Electronics Journey News · {timeAgo(post.published_at)}</div>
+            </div>
+          </div>
         ) : <div />}
 
         <div className="flex items-center gap-1.5">

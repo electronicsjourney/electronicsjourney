@@ -32,6 +32,60 @@ export type Database = {
         }
         Relationships: []
       }
+      news_run_logs: {
+        Row: {
+          details: Json
+          errors: Json
+          id: string
+          inserted: number
+          requested: number
+          run_at: string
+          skipped: number
+        }
+        Insert: {
+          details?: Json
+          errors?: Json
+          id?: string
+          inserted?: number
+          requested?: number
+          run_at?: string
+          skipped?: number
+        }
+        Update: {
+          details?: Json
+          errors?: Json
+          id?: string
+          inserted?: number
+          requested?: number
+          run_at?: string
+          skipped?: number
+        }
+        Relationships: []
+      }
+      news_settings: {
+        Row: {
+          daily_count: number
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          daily_count?: number
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          daily_count?: number
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -265,40 +319,55 @@ export type Database = {
       }
       quick_learn: {
         Row: {
-          author_id: string
+          author_id: string | null
+          auto_generated: boolean
           body: string
           category: string
           created_at: string
+          featured: boolean
           id: string
           image_url: string | null
+          original_url: string | null
           published_at: string
           source: string | null
+          source_name: string | null
+          source_url: string | null
           subtitle: string | null
           tags: string[]
           title: string
         }
         Insert: {
-          author_id: string
+          author_id?: string | null
+          auto_generated?: boolean
           body: string
           category?: string
           created_at?: string
+          featured?: boolean
           id?: string
           image_url?: string | null
+          original_url?: string | null
           published_at?: string
           source?: string | null
+          source_name?: string | null
+          source_url?: string | null
           subtitle?: string | null
           tags?: string[]
           title: string
         }
         Update: {
-          author_id?: string
+          author_id?: string | null
+          auto_generated?: boolean
           body?: string
           category?: string
           created_at?: string
+          featured?: boolean
           id?: string
           image_url?: string | null
+          original_url?: string | null
           published_at?: string
           source?: string | null
+          source_name?: string | null
+          source_url?: string | null
           subtitle?: string | null
           tags?: string[]
           title?: string
