@@ -27,14 +27,18 @@ function CopyPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const raw = params.get("c") || window.location.hash.replace(/^#/, "");
+    const hash = window.location.hash.replace(/^#/, "");
+    const hashParams = new URLSearchParams(hash.includes("=") ? hash : `c=${hash}`);
+    const raw = params.get("c") || hashParams.get("c") || "";
     const text = decode(raw);
     setCode(text);
     if (!text) return;
-    // try auto-copy (works because user clicked the PDF link → gesture)
     navigator.clipboard
       .writeText(text)
-      .then(() => setCopied(true))
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => { try { window.close(); } catch {} }, 700);
+      })
       .catch((e) => setErr(String(e?.message || e)));
   }, []);
 
