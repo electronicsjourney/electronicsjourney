@@ -224,7 +224,7 @@ function QuickLearn() {
             {loading ? (
               <FeedSkeleton />
             ) : feed.length === 0 ? (
-              <EmptyHint canCreate={isAdmin} onCreate={() => isAdmin && setEditorOpen(true)} />)}
+              <EmptyHint canCreate={isAdmin} onCreate={() => isAdmin && setEditorOpen(true)} />
             ) : (
               feed.map((post, i) => (
                 <section
@@ -558,14 +558,16 @@ function FeedSkeleton() {
   );
 }
 
-function EmptyHint({ onCreate }: { onCreate: () => void }) {
+function EmptyHint({ canCreate, onCreate }: { canCreate: boolean; onCreate: () => void }) {
   return (
     <div className="h-full w-full grid place-items-center px-6 text-center">
       <div>
         <Sparkles className="h-12 w-12 mx-auto text-cyan-300 mb-3" />
-        <p className="text-xl font-semibold mb-1">Be the first to share knowledge</p>
-        <p className="text-sm text-white/60 mb-5">Drop a tip, a circuit insight, or a project teaser.</p>
-        <button onClick={onCreate} className="px-5 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold shadow-[0_0_25px_rgba(99,102,241,0.5)]">Create the first post</button>
+        <p className="text-xl font-semibold mb-1">No posts yet</p>
+        <p className="text-sm text-white/60 mb-5">{canCreate ? "Publish the first Quick Learn post." : "Daily news will appear here automatically."}</p>
+        {canCreate && (
+          <button onClick={onCreate} className="px-5 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold shadow-[0_0_25px_rgba(99,102,241,0.5)]">Create the first post</button>
+        )}
       </div>
     </div>
   );
