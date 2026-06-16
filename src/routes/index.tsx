@@ -28,7 +28,7 @@ function Index() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState("All");
-  const [stats, setStats] = useState({ projects: 0, makers: 0 });
+  const [stats, setStats] = useState({ projects: 0, makers: 0, quickLearn: 0 });
 
   useEffect(() => {
     (async () => {
@@ -61,8 +61,11 @@ function Index() {
       setProjects(withCounts);
       setLoading(false);
 
-      const { count: mc } = await supabase.from("profiles").select("*", { count: "exact", head: true });
-      setStats({ projects: withCounts.length, makers: mc ?? 0 });
+      const [{ count: mc }, { count: qc }] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("quick_learn").select("*", { count: "exact", head: true }),
+      ]);
+      setStats({ projects: withCounts.length, makers: mc ?? 0, quickLearn: qc ?? 0 });
     })();
   }, []);
 
@@ -116,7 +119,8 @@ function Index() {
           </div>
           <div className="mt-6 text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">{stats.projects.toLocaleString()}</span> projects shared ·{" "}
-            <span className="font-semibold text-foreground">{stats.makers.toLocaleString()}</span> makers joined
+            <span className="font-semibold text-foreground">{stats.makers.toLocaleString()}</span> makers joined ·{" "}
+            <span className="font-semibold text-foreground">{stats.quickLearn.toLocaleString()}</span> Quick Learn posts
           </div>
         </div>
       </section>

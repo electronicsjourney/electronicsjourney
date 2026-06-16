@@ -521,7 +521,7 @@ function drawCode(
   // is encoded once and reused on every chunk of a multi-page block, so a
   // single tap copies the entire snippet — never just one page.
   const base = "https://electronicsjourney.lovable.app";
-  const copyUrl = `${base}/copy#c=${toUrlSafeB64(code)}`;
+  const copyUrl = `${base}/copy?c=${toUrlSafeB64(code)}`;
 
   let idx = 0;
   let y = ctx.y;
