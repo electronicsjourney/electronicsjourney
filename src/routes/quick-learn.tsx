@@ -305,7 +305,7 @@ function QuickLearn() {
 
       {/* Editor */}
       <AnimatePresence>
-        {editorOpen && user && (
+        {editorOpen && user && isAdmin && (
           <Editor
             userId={user.id}
             onClose={() => setEditorOpen(false)}
