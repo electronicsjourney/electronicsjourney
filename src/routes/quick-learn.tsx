@@ -28,6 +28,8 @@ type Post = {
   source_name?: string | null;
   source_url?: string | null;
   original_url?: string | null;
+  image_type?: string | null;
+  image_source_name?: string | null;
   featured?: boolean | null;
   // enriched
   author?: Profile | null;
@@ -430,29 +432,43 @@ function PostCard({ post, userId, canDelete, onDeleted, onOpenComments }: {
         )}
       </div>
 
-      {/* Body */}
-      <div className="flex-1 overflow-y-auto px-5 md:px-8 py-5 scrollbar-hide">
-        <h1 className="text-xl md:text-3xl font-extrabold leading-[1.2] tracking-tight bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent">
+      {/* Body — designed to fit without scrolling */}
+      <div className="flex-1 min-h-0 overflow-hidden px-5 md:px-8 py-4 md:py-5 flex flex-col">
+        <h1 className="text-lg md:text-2xl font-extrabold leading-[1.2] tracking-tight bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent line-clamp-2">
           {post.title}
         </h1>
-        {post.subtitle && <p className="mt-2 text-sm md:text-base text-white/70 leading-relaxed">{post.subtitle}</p>}
-        <div className="mt-4 text-[15px] md:text-[16px] leading-[1.7] text-white/85 whitespace-pre-wrap">{post.body}</div>
-        {post.auto_generated && post.original_url ? (
-          <a href={post.original_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-200 hover:text-amber-100">
-            <ExternalLink className="h-3.5 w-3.5" /> Read original on {post.source_name || "source"}
-          </a>
+        {post.subtitle && (
+          <p className="mt-1.5 text-xs md:text-sm text-white/70 leading-snug line-clamp-1">{post.subtitle}</p>
+        )}
+        <p className="mt-3 text-[14px] md:text-[15px] leading-[1.55] text-white/85 line-clamp-6">
+          {post.body}
+        </p>
+
+        {/* Source attribution + Read Original (always visible for auto news) */}
+        {post.auto_generated ? (
+          <div className="mt-auto pt-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[11px] text-white/55">
+              Source: <span className="text-white/80 font-medium">{post.source_name || post.source || "Original publisher"}</span>
+              {post.image_type === "fallback" && post.image_source_name && (
+                <span className="ml-2 text-white/40">· Image: {post.image_source_name}</span>
+              )}
+            </span>
+            {post.original_url && (
+              <a
+                href={post.original_url}
+                target="_blank"
+                rel="noreferrer nofollow"
+                className="inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-gradient-to-r from-amber-400 to-rose-500 text-black text-xs font-bold shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:brightness-110 transition"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Read Original Article
+              </a>
+            )}
+          </div>
         ) : post.source ? (
-          <a href={post.source} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-cyan-300 hover:text-cyan-200">
+          <a href={post.source} target="_blank" rel="noreferrer" className="mt-auto pt-3 inline-flex items-center gap-1.5 text-xs text-cyan-300 hover:text-cyan-200">
             <ExternalLink className="h-3.5 w-3.5" /> Source
           </a>
         ) : null}
-        {!!(post.tags && post.tags.length) && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {post.tags!.slice(0, 6).map((t) => (
-              <span key={t} className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/60">#{t}</span>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Author + actions */}

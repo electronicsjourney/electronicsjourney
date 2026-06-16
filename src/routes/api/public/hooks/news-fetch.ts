@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FEEDS } from "@/lib/news/feeds";
 import { parseFeed, type FeedItem } from "@/lib/news/parser";
 import { classify } from "@/lib/news/categorize";
-import { fallbackImage } from "@/lib/news/fallback-images";
+import { fallbackImage, BRAND_DEFAULT } from "@/lib/news/fallback-images";
 import { summarize } from "@/lib/news/summarize";
 
 type FetchResult = {
@@ -170,13 +170,39 @@ async function runNewsFetch(opts: { forced?: boolean; count?: number }): Promise
   for (const c of picked) {
     try {
       const summary = await summarize({ title: c.title, description: c.description, source: c.sourceName });
-      const image = c.image && /^https?:\/\//i.test(c.image) ? c.image : fallbackImage(c.category);
+
+      // Image strategy (NEVER download — always hot-link):
+      //   1) Source image from the original article  → image_type = "source"
+      //   2) Licensed category fallback (Unsplash)   → image_type = "fallback"
+      //   3) Brand default                            → image_type = "default"
+      let image_url: string;
+      let image_type: "source" | "fallback" | "default";
+      let image_source_name: string;
+      if (c.image && /^https?:\/\//i.test(c.image)) {
+        image_url = c.image;
+        image_type = "source";
+        image_source_name = c.sourceName;
+      } else {
+        const fb = fallbackImage(c.category);
+        if (fb?.url) {
+          image_url = fb.url;
+          image_type = "fallback";
+          image_source_name = fb.sourceName;
+        } else {
+          image_url = BRAND_DEFAULT.url;
+          image_type = "default";
+          image_source_name = BRAND_DEFAULT.sourceName;
+        }
+      }
+
       const { error } = await supabaseAdmin.from("quick_learn").insert({
         title: c.title.slice(0, 280),
         body: summary,
         subtitle: null,
         category: c.category,
-        image_url: image,
+        image_url,
+        image_type,
+        image_source_name,
         source: c.sourceName,
         source_name: c.sourceName,
         source_url: c.sourceUrl,
@@ -194,7 +220,7 @@ async function runNewsFetch(opts: { forced?: boolean; count?: number }): Promise
         }
       } else {
         inserted++;
-        inserts.push({ title: c.title, source: c.sourceName, category: c.category });
+        inserts.push({ title: c.title, source: c.sourceName, category: c.category, image_type });
       }
     } catch (e: any) {
       errors.push({ source: c.sourceName, message: String(e?.message ?? e) });
