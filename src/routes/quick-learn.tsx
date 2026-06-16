@@ -171,12 +171,14 @@ function QuickLearn() {
             <span className="text-sm font-bold tracking-wider">QUICK LEARN</span>
           </div>
         </div>
-        <button
-          onClick={() => (user ? setEditorOpen(true) : toast.error("Sign in to post"))}
-          className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-sm font-semibold shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_35px_rgba(99,102,241,0.65)] transition"
-        >
-          <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Create</span>
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setEditorOpen(true)}
+            className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-sm font-semibold shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_35px_rgba(99,102,241,0.65)] transition"
+          >
+            <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Create</span>
+          </button>
+        )}
       </header>
 
       {/* 3-column layout */}
@@ -222,7 +224,7 @@ function QuickLearn() {
             {loading ? (
               <FeedSkeleton />
             ) : feed.length === 0 ? (
-              <EmptyHint onCreate={() => user ? setEditorOpen(true) : toast.error("Sign in to post")} />
+              <EmptyHint canCreate={isAdmin} onCreate={() => isAdmin && setEditorOpen(true)} />)}
             ) : (
               feed.map((post, i) => (
                 <section
