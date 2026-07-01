@@ -816,14 +816,28 @@ function Editor({ userId, onClose, onSaved }: { userId: string; onClose: () => v
             className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white/90 outline-none focus:border-indigo-400" />
           <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Share your tip, news, or insight…" rows={6} required
             className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-400 resize-none leading-relaxed" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <select value={category} onChange={(e) => setCategory(e.target.value)}
-              className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-400 capitalize">
-              {CATEGORIES.map((c) => <option key={c} value={c} className="bg-[#0b0d14]">{c.replace("-", " ")}</option>)}
-            </select>
-            <input value={tagsText} onChange={(e) => setTagsText(e.target.value)} placeholder="tags, comma, separated"
-              className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-400" />
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.15em] text-white/50 font-semibold mb-2">Category</div>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => (
+                <button
+                  type="button"
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className={`px-3 h-8 rounded-full text-xs font-semibold capitalize border transition ${
+                    category === c
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 border-transparent text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                      : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                  }`}
+                >
+                  {c.replace("-", " ")}
+                </button>
+              ))}
+            </div>
           </div>
+          <input value={tagsText} onChange={(e) => setTagsText(e.target.value)} placeholder="tags, comma, separated"
+            className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-400" />
+
           <input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Source URL (optional)" type="url"
             className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-400" />
         </div>
