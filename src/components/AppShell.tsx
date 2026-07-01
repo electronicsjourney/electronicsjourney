@@ -34,6 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
+      <CircuitFX />
       {/* Top nav */}
       <header className="sticky top-0 z-40 glass-strong border-b">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
