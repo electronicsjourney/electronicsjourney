@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Inbox, Heart, Eye, Sparkles } from "lucide-react";
+import { ArrowRight, Inbox, Heart, Eye, Cpu } from "lucide-react";
+import { HeroChip } from "@/components/CircuitFX";
 
 export const Route = createFileRoute("/")({ component: Index });
 
