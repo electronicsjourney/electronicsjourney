@@ -3,6 +3,7 @@ import { Hop as Home, Compass, SquarePlus as PlusSquare, Bell, User, Search, Shi
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CircuitFX } from "@/components/CircuitFX";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, profile, isAdmin, signOut } = useAuth();
