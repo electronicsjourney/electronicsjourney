@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Inbox, Heart, Eye, Sparkles } from "lucide-react";
+import { ArrowRight, Inbox, Heart, Eye, Cpu } from "lucide-react";
+import { HeroChip } from "@/components/CircuitFX";
 
 export const Route = createFileRoute("/")({ component: Index });
 
@@ -93,9 +94,10 @@ function Index() {
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl glass-strong p-8 md:p-14 mb-8">
         <div className="absolute inset-0 opacity-60" style={{ background: "var(--gradient-glow)" }} />
+        <HeroChip />
         <div className="relative max-w-3xl">
           <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs mb-5">
-            <Sparkles className="h-3 w-3 text-primary" />
+            <Cpu className="h-3 w-3 text-primary" />
             <span>India's maker community</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">

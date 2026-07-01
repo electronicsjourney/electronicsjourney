@@ -3,6 +3,7 @@ import { Hop as Home, Compass, SquarePlus as PlusSquare, Bell, User, Search, Shi
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CircuitFX } from "@/components/CircuitFX";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, profile, isAdmin, signOut } = useAuth();
@@ -33,6 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
+      <CircuitFX />
       {/* Top nav */}
       <header className="sticky top-0 z-40 glass-strong border-b">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
