@@ -38,46 +38,76 @@
 }
 
 :root {
-  --radius: 0.875rem;
+  --radius: 0.75rem;
 
-  /* Futuristic dark by default */
-  --background: oklch(0.14 0.03 270);
-  --foreground: oklch(0.97 0.01 270);
-  --card: oklch(0.19 0.04 270 / 0.6);
-  --card-foreground: oklch(0.97 0.01 270);
-  --popover: oklch(0.18 0.04 270);
-  --popover-foreground: oklch(0.97 0.01 270);
+  /* Premium electronics engineering palette */
+  --background: #0B1220;
+  --foreground: #F8FAFC;
+  --card: rgba(17, 24, 39, 0.72);
+  --card-foreground: #F8FAFC;
+  --popover: #111827;
+  --popover-foreground: #F8FAFC;
 
-  --primary: oklch(0.68 0.22 295); /* neon purple */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.62 0.22 250); /* neon blue */
-  --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.25 0.03 270);
-  --muted-foreground: oklch(0.72 0.03 270);
-  --accent: oklch(0.30 0.10 285);
-  --accent-foreground: oklch(0.97 0.01 270);
-  --destructive: oklch(0.65 0.25 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.30 0.05 275 / 0.5);
-  --input: oklch(0.25 0.04 275 / 0.6);
-  --ring: oklch(0.68 0.22 295);
+  --primary: #00C2FF;
+  --primary-foreground: #0B1220;
+  --secondary: #1F2937;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1a2333;
+  --muted-foreground: #94A3B8;
+  --accent: #00C2FF;
+  --accent-foreground: #0B1220;
+  --destructive: #ef4444;
+  --destructive-foreground: #F8FAFC;
+  --border: rgba(148, 163, 184, 0.12);
+  --input: rgba(15, 23, 42, 0.6);
+  --ring: #00C2FF;
 
-  --neon: oklch(0.72 0.22 290);
-  --neon-foreground: oklch(0.99 0 0);
+  --neon: #00C2FF;
+  --neon-foreground: #0B1220;
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.68 0.22 295), oklch(0.62 0.22 250));
-  --gradient-glow: radial-gradient(circle at 50% 0%, oklch(0.68 0.22 295 / 0.35), transparent 60%);
-  --shadow-neon: 0 0 32px -4px oklch(0.68 0.22 295 / 0.5), 0 0 80px -20px oklch(0.62 0.22 250 / 0.5);
-  --shadow-card: 0 8px 40px -12px oklch(0.10 0.04 270 / 0.8);
+  --gradient-primary: linear-gradient(135deg, #00C2FF, #0891B2);
+  --gradient-glow: radial-gradient(circle at 50% 0%, rgba(0, 194, 255, 0.15), transparent 60%);
+  --shadow-neon: 0 0 24px -6px rgba(0, 194, 255, 0.35);
+  --shadow-card: 0 8px 32px -12px rgba(0, 0, 0, 0.6);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
-  html, body { background: var(--color-background); color: var(--color-foreground); font-family: var(--font-display); }
+  html, body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-display);
+  }
   body {
+    /* Subtle PCB traces + connection nodes + faint microchip pattern (5–8% opacity) */
+    background-color: #0B1220;
     background-image:
-      radial-gradient(ellipse at 20% -10%, oklch(0.68 0.22 295 / 0.18), transparent 50%),
-      radial-gradient(ellipse at 80% 110%, oklch(0.62 0.22 250 / 0.18), transparent 50%);
+      /* Faint microchip silhouette top-right */
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' fill='none' stroke='%2300C2FF' stroke-width='1.2' opacity='0.08'><rect x='60' y='60' width='120' height='120' rx='10'/><rect x='84' y='84' width='72' height='72' rx='4'/><g stroke-linecap='round'><path d='M80 40v20M100 40v20M120 40v20M140 40v20M160 40v20'/><path d='M80 200v-20M100 200v-20M120 200v-20M140 200v-20M160 200v-20'/><path d='M40 80h20M40 100h20M40 120h20M40 140h20M40 160h20'/><path d='M200 80h-20M200 100h-20M200 120h-20M200 140h-20M200 160h-20'/></g><circle cx='120' cy='120' r='4' fill='%2300C2FF'/></svg>"),
+      /* Connection nodes */
+      radial-gradient(circle at 12% 22%, rgba(0, 194, 255, 0.55) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 78% 68%, rgba(0, 194, 255, 0.5) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 42% 88%, rgba(0, 194, 255, 0.45) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 88% 14%, rgba(0, 194, 255, 0.5) 0 1.5px, transparent 2px),
+      /* PCB trace grid */
+      linear-gradient(rgba(0, 194, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 194, 255, 0.05) 1px, transparent 1px),
+      /* Ambient accent glow */
+      radial-gradient(ellipse at 20% -10%, rgba(0, 194, 255, 0.08), transparent 55%),
+      radial-gradient(ellipse at 80% 110%, rgba(0, 194, 255, 0.05), transparent 55%);
+    background-size:
+      420px 420px,
+      auto, auto, auto, auto,
+      64px 64px,
+      64px 64px,
+      auto, auto;
+    background-position:
+      calc(100% - 40px) 80px,
+      0 0, 0 0, 0 0, 0 0,
+      0 0,
+      0 0,
+      0 0, 0 0;
+    background-repeat: no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -86,24 +116,42 @@
 
 @layer utilities {
   .glass {
-    background: oklch(0.20 0.04 275 / 0.5);
-    backdrop-filter: blur(20px);
-    border: 1px solid oklch(0.50 0.10 280 / 0.2);
+    background: rgba(17, 24, 39, 0.55);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(148, 163, 184, 0.08);
   }
   .glass-strong {
-    background: oklch(0.18 0.04 275 / 0.75);
-    backdrop-filter: blur(24px);
-    border: 1px solid oklch(0.55 0.12 285 / 0.25);
+    background: rgba(17, 24, 39, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.1);
   }
   .gradient-text {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #00C2FF, #7DD3FC);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .gradient-bg { background: var(--gradient-primary); }
+  .gradient-bg { background: var(--gradient-primary); color: #0B1220; }
   .glow { box-shadow: var(--shadow-neon); }
-  .glow-soft { box-shadow: 0 0 24px -8px oklch(0.68 0.22 295 / 0.4); }
+  .glow-soft { box-shadow: 0 0 16px -6px rgba(0, 194, 255, 0.28); }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { scrollbar-width: none; }
+
+  /* Refined hover: slight elevation, thin cyan border, gentle scale */
+  .hover-lift {
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    border: 1px solid transparent;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px) scale(1.005);
+    border-color: rgba(0, 194, 255, 0.35);
+    box-shadow: 0 12px 30px -18px rgba(0, 194, 255, 0.35);
+  }
+
+  .fade-in { animation: ej-fade-in 0.5s ease-out both; }
+}
+
+@keyframes ej-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
